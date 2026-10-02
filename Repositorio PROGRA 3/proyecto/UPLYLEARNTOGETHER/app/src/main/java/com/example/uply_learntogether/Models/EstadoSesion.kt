@@ -1,5 +1,0 @@
-package com.example.uply_learntogether.Models
-
-enum class EstadoSesion {
-    PENDIENTE_CONFIGURACION, PROGRAMADA, EN_CURSO, FINALIZADA, CANCELLED_EARLY, CANCELLED_LATE, CANCELLED_BY_TUTOR, NO_SHOW_TUTOR, DISPUTED
-}
