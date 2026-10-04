@@ -5,12 +5,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.uply_learntogether.ui.home.HomeScreen
+import com.example.uply_learntogether.ui.login.LoginScreen
+import com.example.uply_learntogether.ui.login.LoginViewModel
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,11 +23,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             UPLYLEARNTOGETHERTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    UplyApp()
                 }
             }
         }
@@ -31,17 +35,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
+    val usuarioActual by loginViewModel.usuarioActual.collectAsState()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    UPLYLEARNTOGETHERTheme {
-        Greeting("Android")
+    val usuario = usuarioActual
+    if (usuario == null || !usuario.isSesionIniciada()) {
+        LoginScreen(viewModel = loginViewModel)
+    } else {
+        HomeScreen(
+            usuario = usuario,
+            onCerrarSesion = { loginViewModel.cerrarSesion() }
+        )
     }
 }
