@@ -26,13 +26,17 @@ import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    contactName: String = "Diego Vargas",
+    contactName: String = "Valeria Rojas",
+    hasProposedSession: Boolean = false,
+    proposedSessionSummary: String = "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
     onHomeClick: () -> Unit = {},
     onExploreClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onConfigureSessionClick: () -> Unit = {}
 ) {
     var messageText by remember { mutableStateOf("") }
+    var isAttachMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -206,7 +210,7 @@ fun ChatScreen(
                 // Received Message 1
                 item {
                     ReceivedMessageBubble(
-                        text = "¡Hola, Sofía! Vi que necesitas ayuda con derivadas. ¿Qué tema te cuesta más?",
+                        text = "¡Hola! Vi que necesitas ayuda con tus estudios. ¿Qué tema te cuesta más?",
                         time = "14:25"
                     )
                 }
@@ -214,7 +218,7 @@ fun ChatScreen(
                 // Sent Message 1
                 item {
                     SentMessageBubble(
-                        text = "¡Hola, Diego! La regla de la cadena 😅 Tengo parcial la próxima semana.",
+                        text = "¡Hola! Tengo parcial la próxima semana y necesito apoyo.",
                         time = "14:26"
                     )
                 }
@@ -222,22 +226,16 @@ fun ChatScreen(
                 // Received Message 2
                 item {
                     ReceivedMessageBubble(
-                        text = "¡La practicamos juntos! ¿Te va bien el lunes a las 16:00?",
+                        text = "¡Lo practicamos juntos! ¿Te parece bien coordinar una sesión?",
                         time = "14:27"
                     )
                 }
 
-                // Sent Message 2
-                item {
-                    SentMessageBubble(
-                        text = "¡Sí, perfecto! Me viene súper bien.",
-                        time = "14:28"
-                    )
-                }
-
-                // Proposed Session Card ("Sesión propuesta")
-                item {
-                    ProposedSessionCard()
+                // Proposed Session Card ("Sesión propuesta") - Only rendered if hasProposedSession is true
+                if (hasProposedSession) {
+                    item {
+                        ProposedSessionCard(sessionDetails = proposedSessionSummary)
+                    }
                 }
             }
 
@@ -256,12 +254,37 @@ fun ChatScreen(
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Default.AttachFile,
-                            contentDescription = "Adjuntar archivo",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    Box {
+                        IconButton(onClick = { isAttachMenuExpanded = true }) {
+                            Icon(
+                                imageVector = Icons.Default.AttachFile,
+                                contentDescription = "Adjuntar archivo",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isAttachMenuExpanded,
+                            onDismissRequest = { isAttachMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Crear Sesión") },
+                                leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
+                                onClick = {
+                                    isAttachMenuExpanded = false
+                                    onConfigureSessionClick()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Documento") },
+                                leadingIcon = { Icon(Icons.Default.Description, contentDescription = null) },
+                                onClick = { isAttachMenuExpanded = false }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Imagen") },
+                                leadingIcon = { Icon(Icons.Default.Image, contentDescription = null) },
+                                onClick = { isAttachMenuExpanded = false }
+                            )
+                        }
                     }
 
                     OutlinedTextField(
@@ -386,7 +409,9 @@ fun SentMessageBubble(text: String, time: String) {
 }
 
 @Composable
-fun ProposedSessionCard() {
+fun ProposedSessionCard(
+    sessionDetails: String = "Lunes 5 oct. · 16:00 · Virtual · Bs 35"
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -417,7 +442,7 @@ fun ProposedSessionCard() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
+                text = sessionDetails,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary
             )

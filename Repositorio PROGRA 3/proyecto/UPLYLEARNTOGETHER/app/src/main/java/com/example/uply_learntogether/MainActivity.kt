@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uply_learntogether.ui.chat.ChatScreen
 import com.example.uply_learntogether.ui.chat.ConversationsScreen
+import com.example.uply_learntogether.ui.chat.ScreenConfiguration
 import com.example.uply_learntogether.ui.explore.ExploreScreen
 import com.example.uply_learntogether.ui.home.HomeScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
@@ -45,7 +47,10 @@ class MainActivity : ComponentActivity() {
 fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
     val usuarioActual by loginViewModel.usuarioActual.collectAsState()
     var currentScreen by remember { mutableStateOf("home") }
-    var selectedContactName by remember { mutableStateOf("Diego Vargas") }
+    var selectedContactName by remember { mutableStateOf("Valeria Rojas") }
+
+    val proposedSessionsMap = remember { mutableStateMapOf<String, Boolean>() }
+    val proposedSessionsTextMap = remember { mutableStateMapOf<String, String>() }
 
     val usuario = usuarioActual
     if (usuario == null || !usuario.isSesionIniciada()) {
@@ -83,10 +88,26 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
             )
             "chat_detail" -> ChatScreen(
                 contactName = selectedContactName,
+                hasProposedSession = proposedSessionsMap[selectedContactName] == true,
+                proposedSessionSummary = proposedSessionsTextMap[selectedContactName] ?: "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },
-                onBackClick = { currentScreen = "conversations" }
+                onBackClick = { currentScreen = "conversations" },
+                onConfigureSessionClick = { currentScreen = "configure_session" }
+            )
+            "configure_session" -> ScreenConfiguration(
+                contactName = selectedContactName,
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" },
+                onChatClick = { currentScreen = "conversations" },
+                onBackClick = { currentScreen = "chat_detail" },
+                onConfirmSession = { summary ->
+                    proposedSessionsMap[selectedContactName] = true
+                    proposedSessionsTextMap[selectedContactName] = summary
+                    currentScreen = "chat_detail"
+                }
             )
         }
     }
