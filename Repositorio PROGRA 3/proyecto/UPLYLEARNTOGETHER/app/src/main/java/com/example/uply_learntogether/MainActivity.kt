@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uply_learntogether.ui.chat.ChatScreen
+import com.example.uply_learntogether.ui.chat.ConversationsScreen
 import com.example.uply_learntogether.ui.explore.ExploreScreen
 import com.example.uply_learntogether.ui.home.HomeScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
 fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
     val usuarioActual by loginViewModel.usuarioActual.collectAsState()
     var currentScreen by remember { mutableStateOf("home") }
+    var selectedContactName by remember { mutableStateOf("Diego Vargas") }
 
     val usuario = usuarioActual
     if (usuario == null || !usuario.isSesionIniciada()) {
@@ -55,25 +57,36 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onCerrarSesion = { loginViewModel.cerrarSesion() },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },
-                onChatClick = { currentScreen = "chat" }
+                onChatClick = { currentScreen = "conversations" }
             )
             "explore" -> ExploreScreen(
                 onHomeClick = { currentScreen = "home" },
                 onBackClick = { currentScreen = "home" },
                 onPublishClick = { currentScreen = "publish" },
-                onChatClick = { currentScreen = "chat" }
+                onChatClick = { currentScreen = "conversations" }
             )
             "publish" -> PublishScreen(
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onBackClick = { currentScreen = "home" },
-                onChatClick = { currentScreen = "chat" }
+                onChatClick = { currentScreen = "conversations" }
             )
-            "chat" -> ChatScreen(
+            "conversations" -> ConversationsScreen(
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },
-                onBackClick = { currentScreen = "home" }
+                onBackClick = { currentScreen = "home" },
+                onConversationClick = { contact ->
+                    selectedContactName = contact
+                    currentScreen = "chat_detail"
+                }
+            )
+            "chat_detail" -> ChatScreen(
+                contactName = selectedContactName,
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" },
+                onBackClick = { currentScreen = "conversations" }
             )
         }
     }
