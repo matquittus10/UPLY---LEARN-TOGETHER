@@ -28,6 +28,7 @@ fun HomeScreen(
     usuario: Usuario,
     onCerrarSesion: () -> Unit,
     onExploreClick: () -> Unit = {},
+    onPublishClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -67,7 +68,7 @@ fun HomeScreen(
                     },
                     label = { Text("Publicar") },
                     selected = false,
-                    onClick = { /* No hace nada por el momento */ }
+                    onClick = onPublishClick
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chats") },

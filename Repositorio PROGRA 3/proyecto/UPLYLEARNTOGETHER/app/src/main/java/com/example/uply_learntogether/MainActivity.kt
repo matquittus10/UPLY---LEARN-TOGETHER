@@ -19,6 +19,7 @@ import com.example.uply_learntogether.ui.explore.ExploreScreen
 import com.example.uply_learntogether.ui.home.HomeScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
 import com.example.uply_learntogether.ui.login.LoginViewModel
+import com.example.uply_learntogether.ui.publish.PublishScreen
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
 class MainActivity : ComponentActivity() {
@@ -51,10 +52,17 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
             "home" -> HomeScreen(
                 usuario = usuario,
                 onCerrarSesion = { loginViewModel.cerrarSesion() },
-                onExploreClick = { currentScreen = "explore" }
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" }
             )
             "explore" -> ExploreScreen(
                 onHomeClick = { currentScreen = "home" },
+                onBackClick = { currentScreen = "home" },
+                onPublishClick = { currentScreen = "publish" }
+            )
+            "publish" -> PublishScreen(
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
                 onBackClick = { currentScreen = "home" }
             )
         }
