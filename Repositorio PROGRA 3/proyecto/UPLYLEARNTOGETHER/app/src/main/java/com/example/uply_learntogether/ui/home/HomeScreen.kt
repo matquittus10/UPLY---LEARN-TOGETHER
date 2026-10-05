@@ -27,6 +27,7 @@ import com.example.uply_learntogether.Models.Usuario
 fun HomeScreen(
     usuario: Usuario,
     onCerrarSesion: () -> Unit,
+    onExploreClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -46,7 +47,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.Explore, contentDescription = "Explorar") },
                     label = { Text("Explorar") },
                     selected = false,
-                    onClick = { /* No hace nada por el momento */ }
+                    onClick = onExploreClick
                 )
                 NavigationBarItem(
                     icon = {
