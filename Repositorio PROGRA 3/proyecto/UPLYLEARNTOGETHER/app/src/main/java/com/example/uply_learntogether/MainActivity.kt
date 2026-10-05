@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.uply_learntogether.ui.chat.ChatScreen
 import com.example.uply_learntogether.ui.explore.ExploreScreen
 import com.example.uply_learntogether.ui.home.HomeScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
@@ -53,16 +54,25 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 usuario = usuario,
                 onCerrarSesion = { loginViewModel.cerrarSesion() },
                 onExploreClick = { currentScreen = "explore" },
-                onPublishClick = { currentScreen = "publish" }
+                onPublishClick = { currentScreen = "publish" },
+                onChatClick = { currentScreen = "chat" }
             )
             "explore" -> ExploreScreen(
                 onHomeClick = { currentScreen = "home" },
                 onBackClick = { currentScreen = "home" },
-                onPublishClick = { currentScreen = "publish" }
+                onPublishClick = { currentScreen = "publish" },
+                onChatClick = { currentScreen = "chat" }
             )
             "publish" -> PublishScreen(
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
+                onBackClick = { currentScreen = "home" },
+                onChatClick = { currentScreen = "chat" }
+            )
+            "chat" -> ChatScreen(
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" },
                 onBackClick = { currentScreen = "home" }
             )
         }

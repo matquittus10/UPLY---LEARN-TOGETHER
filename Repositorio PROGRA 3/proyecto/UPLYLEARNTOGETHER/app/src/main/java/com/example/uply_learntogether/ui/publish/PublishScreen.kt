@@ -26,6 +26,7 @@ import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 fun PublishScreen(
     onHomeClick: () -> Unit = {},
     onExploreClick: () -> Unit = {},
+    onChatClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     var selectedType by remember { mutableIntStateOf(0) } // 0: Necesito ayuda, 1: Ofrezco tutoría
@@ -86,7 +87,7 @@ fun PublishScreen(
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chats") },
                     label = { Text("Chats") },
                     selected = false,
-                    onClick = { }
+                    onClick = onChatClick
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },

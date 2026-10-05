@@ -29,6 +29,7 @@ fun HomeScreen(
     onCerrarSesion: () -> Unit,
     onExploreClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
+    onChatClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -74,7 +75,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chats") },
                     label = { Text("Chats") },
                     selected = false,
-                    onClick = { /* No hace nada por el momento */ }
+                    onClick = onChatClick
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
