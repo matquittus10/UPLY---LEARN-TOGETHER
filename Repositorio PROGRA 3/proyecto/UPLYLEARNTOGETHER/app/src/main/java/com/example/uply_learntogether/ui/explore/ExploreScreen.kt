@@ -26,7 +26,8 @@ import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 @Composable
 fun ExploreScreen(
     onHomeClick: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onPublishClick: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableStateOf(0) } // 0: Ofertas de tutores, 1: Solicitudes de estudiantes
     var searchQuery by remember { mutableStateOf("") }
@@ -71,7 +72,7 @@ fun ExploreScreen(
                     },
                     label = { Text("Publicar") },
                     selected = false,
-                    onClick = { }
+                    onClick = onPublishClick
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chats") },
