@@ -2,6 +2,7 @@ package com.example.uply_learntogether.ui.chat
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,28 +33,51 @@ fun ScreenConfiguration(
     onPublishClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    onConfirmSession: (String) -> Unit = {}
+    onConfirmSession: (String) -> Unit = {},
 ) {
-    var selectedDate by remember { mutableStateOf("Lunes 5 oct.") }
-    var customDateText by remember { mutableStateOf("") }
-    var selectedTime by remember { mutableStateOf("16:00 - 17:00") }
-    var customTimeText by remember { mutableStateOf("") }
+    // Date Picker state
+    var showDatePicker by remember { mutableStateOf(value = false) }
+    val datePickerState = rememberDatePickerState()
+
+    // Time Picker state
+    var showTimePicker by remember { mutableStateOf(value = false) }
+    val timePickerState = rememberTimePickerState(
+        initialHour = 16,
+        initialMinute = 0,
+        is24Hour = true,
+    )
+
+    // Modality state
     var selectedModality by remember { mutableIntStateOf(0) } // 0: Virtual, 1: Presencial
 
-    val dateOptions = listOf("Lunes 5 oct.", "Martes 6 oct.", "Miércoles 7 oct.", "Jueves 8 oct.")
-    val timeOptions = listOf("10:00 - 11:00", "14:00 - 15:00", "16:00 - 17:00", "18:00 - 19:00")
+    // Format selected date
+    val formattedDate = remember(datePickerState.selectedDateMillis) {
+        if (datePickerState.selectedDateMillis != null) {
+            val instant = Instant.ofEpochMilli(datePickerState.selectedDateMillis!!)
+            val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
+            date.format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM, yyyy"))
+        } else {
+            "Lunes, 5 de Octubre de 2025"
+        }
+    }
 
-    val finalDate = if (customDateText.isNotBlank()) customDateText else selectedDate
-    val finalTime = if (customTimeText.isNotBlank()) customTimeText else selectedTime
+    // Format selected time
+    val formattedTime = remember(timePickerState.hour, timePickerState.minute) {
+        val hourStr = timePickerState.hour.toString().padStart(2, '0')
+        val minuteStr = timePickerState.minute.toString().padStart(2, '0')
+        val endHourStr = ((timePickerState.hour + 1) % 24).toString().padStart(2, '0')
+        "$hourStr:$minuteStr - $endHourStr:$minuteStr"
+    }
+
     val finalModality = if (selectedModality == 0) "Virtual" else "Presencial"
-    val sessionSummary = "$finalDate · $finalTime · $finalModality · Bs 35"
+    val sessionSummary = "$formattedDate · $formattedTime · $finalModality · Bs 35"
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp
+                tonalElevation = 8.dp,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
@@ -128,7 +155,7 @@ fun ScreenConfiguration(
 
             // Subtítulo
             Text(
-                text = "Propón la fecha, hora y modalidad para tu clase con $contactName.",
+                text = "Selecciona la fecha y hora mediante los selectores oficiales para tu clase con $contactName.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -136,7 +163,7 @@ fun ScreenConfiguration(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Sección 1: Fecha de la sesión
+            // Sección 1: Selector de Fecha (DatePicker)
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
                     text = "Fecha de la sesión",
@@ -145,131 +172,95 @@ fun ScreenConfiguration(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showDatePicker = true },
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                    tonalElevation = 1.dp
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        dateOptions.take(2).forEach { date ->
-                            FilterChip(
-                                selected = (selectedDate == date && customDateText.isBlank()),
-                                onClick = {
-                                    selectedDate = date
-                                    customDateText = ""
-                                },
-                                label = { Text(date) },
-                                shape = RoundedCornerShape(20.dp),
-                                modifier = Modifier.weight(1f)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarToday,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = formattedDate,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                             )
                         }
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        dateOptions.drop(2).forEach { date ->
-                            FilterChip(
-                                selected = (selectedDate == date && customDateText.isBlank()),
-                                onClick = {
-                                    selectedDate = date
-                                    customDateText = ""
-                                },
-                                label = { Text(date) },
-                                shape = RoundedCornerShape(20.dp),
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Cambiar fecha",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = customDateText,
-                    onValueChange = { customDateText = it },
-                    placeholder = {
-                        Text(
-                            text = "O escribe otra fecha (Ej. 12 de Octubre)",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    singleLine = true
-                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Sección 2: Hora de la sesión
+            // Sección 2: Selector de Hora (TimePicker)
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
-                    text = "Hora de la sesión",
+                    text = "Horario de la sesión",
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showTimePicker = true },
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                    tonalElevation = 1.dp
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        timeOptions.take(2).forEach { time ->
-                            FilterChip(
-                                selected = (selectedTime == time && customTimeText.isBlank()),
-                                onClick = {
-                                    selectedTime = time
-                                    customTimeText = ""
-                                },
-                                label = { Text(time) },
-                                shape = RoundedCornerShape(20.dp),
-                                modifier = Modifier.weight(1f)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Schedule,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = formattedTime,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                             )
                         }
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        timeOptions.drop(2).forEach { time ->
-                            FilterChip(
-                                selected = (selectedTime == time && customTimeText.isBlank()),
-                                onClick = {
-                                    selectedTime = time
-                                    customTimeText = ""
-                                },
-                                label = { Text(time) },
-                                shape = RoundedCornerShape(20.dp),
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Cambiar hora",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = customTimeText,
-                    onValueChange = { customTimeText = it },
-                    placeholder = {
-                        Text(
-                            text = "O escribe otro horario (Ej. 15:30 - 16:30)",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    singleLine = true
-                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -361,7 +352,7 @@ fun ScreenConfiguration(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Sección 4: Vista previa / Resumen de propuesta
+            // Sección 4: Resumen de la propuesta
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
                     text = "Resumen de la propuesta",
@@ -445,6 +436,51 @@ fun ScreenConfiguration(
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+
+    // Date Picker Dialog
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Aceptar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // Time Picker Dialog
+    if (showTimePicker) {
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = { showTimePicker = false }) {
+                    Text("Aceptar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) {
+                    Text("Cancelar")
+                }
+            },
+            title = { Text("Seleccionar hora") },
+            text = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TimePicker(state = timePickerState)
+                }
+            }
+        )
     }
 }
 
