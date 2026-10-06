@@ -1,139 +1,162 @@
 # UPLY — LEARN TOGETHER
 
-### Contenidos del proyecto/aplicación de la materia de Programación III
+### Proyecto de la materia de Programación III
 
-**Integrantes del equipo:**
+**Integrantes:**
 
 * Christian Eguino
 * Arturo Arriaza
 * Ariel Baptista
 * Marco Avila
 
----
-
-# IDEA DE APLICACIÓN “UPLY — LEARN TOGETHER”
+# IDEA DE LA APLICACIÓN “UPLY — LEARN TOGETHER”
 
 ## 1. PROBLEMÁTICA
 
-La problemática surge a partir de la experiencia académica en la universidad, donde se presentan vacíos en la enseñanza que los métodos tradicionales no logran cubrir de manera eficiente:
+La idea de UPLY nace a partir de algunas dificultades que se presentan durante la vida universitaria y que no siempre pueden ser solucionadas mediante los métodos tradicionales de enseñanza.
 
-* **Brecha pedagógica y de lenguaje:** Muchos docentes poseen un dominio teórico avanzado, pero en ocasiones existe una barrera de comunicación al momento de explicar conceptos básicos o resolver bloqueos específicos de estudiantes que recién cursan una asignatura.
+* **Dificultad de comunicación entre docente y estudiante:** Los docentes cuentan con un amplio conocimiento de sus materias, pero en algunos casos pueden existir dificultades para explicar determinados conceptos de una manera sencilla para estudiantes que recién están comenzando una asignatura o que tienen problemas con temas específicos.
 
-* **Alto costo de clases particulares:** Contratar un profesor particular externo implica un gasto económico elevado, lo cual puede resultar inaccesible para muchos estudiantes.
+* **Costo de las clases particulares:** Buscar un profesor particular fuera de la universidad puede representar un gasto considerable para un estudiante, haciendo que este tipo de apoyo no siempre sea una opción accesible.
 
-* **Subaprovechamiento del talento estudiantil:** Los estudiantes de cursos superiores que dominan determinadas asignaturas no cuentan con un canal formal, seguro y organizado para transmitir y reforzar sus conocimientos, además de poder rentabilizar su tiempo.
+* **Poco aprovechamiento del conocimiento de estudiantes avanzados:** Existen estudiantes de cursos superiores que tienen un buen dominio de determinadas materias, pero no cuentan con un espacio organizado donde puedan compartir sus conocimientos con otros estudiantes y, al mismo tiempo, obtener una compensación por su tiempo.
 
 ---
 
 ## 2. JUSTIFICACIÓN
 
-El desarrollo de esta aplicación se sustenta en los siguientes pilares:
+UPLY busca solucionar estas dificultades mediante un sistema de aprendizaje entre estudiantes, basándose principalmente en los siguientes aspectos:
 
-* **Efectividad del aprendizaje entre iguales (Peer-to-Peer):** Un estudiante de grado superior comprende de manera más cercana los “cuellos de botella”, el formato de evaluación y las dificultades específicas de una asignatura. Esto permite brindar explicaciones más empáticas, directas y fáciles de comprender.
+* **Aprendizaje entre iguales (Peer-to-Peer):** Un estudiante que ya cursó una materia puede comprender mejor las dificultades que suelen presentarse durante la misma. Al haber pasado recientemente por esos contenidos, puede explicar los temas desde una perspectiva más cercana al estudiante que necesita ayuda.
 
-* **Resolución puntual y flexible:** A diferencia de un curso completo, la plataforma permite solicitar ayuda para un ejercicio o concepto específico mediante sesiones cortas, optimizando el tiempo tanto del estudiante como del tutor.
+* **Ayuda específica y adaptable:** La plataforma no busca reemplazar un curso universitario completo. Su objetivo es permitir que un estudiante pueda encontrar ayuda para un ejercicio, tema o concepto determinado mediante sesiones que se adapten a sus necesidades y disponibilidad.
 
-* **Sostenibilidad e incentivos directos:** La plataforma garantiza que el conocimiento y tiempo de los tutores sean compensados, ya sea mediante ingresos económicos o mediante reconocimiento dentro de la aplicación, asegurando así una oferta constante de tutores capacitados.
-
----
-
-## 3. FLUJO DE FUNCIONAMIENTO
-
-La aplicación dará inicialmente la opción de registrarse como estudiante o tutor. Sin embargo, ambos roles pertenecerán a un mismo tipo de usuario y podrán cambiar de rol o desempeñar ambas funciones.
-
-Durante el registro, cualquier usuario deberá proporcionar información como la carrera de interés, nombre de usuario, contraseña, número de celular, correo electrónico, entre otros datos necesarios.
-
-Una vez creada la cuenta, el usuario podrá utilizar las diferentes funciones de la aplicación dependiendo de las acciones que desee realizar.
-
-### Estudiante
-
-El estudiante podrá realizar publicaciones en las cuales especificará la materia que necesita aprender, junto con una descripción de sus necesidades de aprendizaje. Esto permitirá que los tutores interesados en enseñar dicha materia conozcan las necesidades específicas de cada estudiante.
-
-A su vez, el estudiante podrá buscar publicaciones realizadas por tutores que estén dispuestos a enseñar determinadas materias, junto con una descripción de los servicios que ofrecen.
-
-Ya sea que haya realizado una publicación o que esté interesado en una publicación de un tutor, el estudiante podrá recibir o enviar una solicitud para posteriormente comunicarse con el tutor y acordar una sesión.
-
-La sesión podrá ser virtual o presencial, tendrá una duración determinada y se establecerá una fecha previamente acordada entre ambas partes.
-
-Por cada sesión creada, el estudiante deberá realizar el pago correspondiente al monto acordado con el tutor.
-
-### Tutor
-
-El tutor podrá realizar prácticamente las mismas acciones que un estudiante. La diferencia principal será que podrá especificar en su perfil todas las materias que está capacitado para enseñar.
-
-Esto permitirá que los estudiantes que necesiten ayuda en dichas materias puedan encontrarlo con mayor facilidad.
-
-Además, el tutor tendrá la opción de establecer la tarifa que desea cobrar por cada sesión. Esta tarifa será pagada por el estudiante una vez que se cree y confirme la sesión.
+* **Incentivo para los tutores:** Los estudiantes que ofrecen sus conocimientos podrán recibir una compensación por el tiempo que dedican a enseñar. Esta compensación podrá ser económica o mediante algún tipo de reconocimiento dentro de la aplicación, incentivando la participación de tutores capacitados.
 
 ---
 
-## Chat
+# 3. FUNCIONAMIENTO DE LA APLICACIÓN
 
-Tanto el estudiante como el tutor deberán enviar una solicitud de mensaje a la otra parte, generalmente respondiendo a una publicación.
+Al ingresar a UPLY, una persona podrá crear una cuenta y utilizarla tanto para buscar ayuda como para ofrecerla. Es decir, un mismo usuario podrá desempeñarse como estudiante, tutor o cumplir ambos roles.
 
-Una vez aceptada la solicitud, se habilitará el chat entre ambos usuarios.
+Durante el registro se solicitarán datos como la carrera de interés, nombre de usuario, contraseña, número de celular, correo electrónico y demás información necesaria para utilizar la plataforma.
 
-Cuando ambas partes hayan acordado realizar una sesión, se deberá efectuar el pago. El estudiante podrá realizar el pago mediante QR por el monto establecido por el tutor.
+Después de completar el registro, el usuario podrá acceder a las diferentes funciones disponibles.
 
-Una vez confirmado el pago, ambas partes podrán definir dentro del mismo chat la modalidad, fecha y duración de la sesión.
+## Estudiante
 
-Ambos usuarios deberán aceptar esta configuración mediante un botón de confirmación.
+El usuario que necesite aprender podrá crear una publicación indicando la materia en la que necesita ayuda.
 
-En caso de que posteriormente se quiera modificar alguno de los datos de la sesión, ambas partes deberán aceptar nuevamente la nueva configuración mediante el mismo sistema de confirmación.
+En dicha publicación podrá incluir una descripción explicando qué tema necesita reforzar, qué dificultad tiene o qué tipo de ayuda está buscando.
+
+Los tutores podrán visualizar estas publicaciones y decidir si están interesados en ofrecer su ayuda.
+
+También será posible que el estudiante busque directamente publicaciones creadas por tutores que ofrecen clases en determinadas materias.
+
+Cuando encuentre una publicación que le interese, podrá enviar una solicitud al tutor. De igual manera, un tutor podrá contactar a un estudiante a partir de una publicación.
+
+Después de que ambas partes establezcan contacto, podrán acordar una sesión de tutoría.
+
+La sesión podrá realizarse de manera **virtual o presencial**, dependiendo de lo que acuerden ambas partes. También deberán establecer una fecha y una duración.
+
+Antes de comenzar la sesión, el estudiante deberá realizar el pago correspondiente al precio acordado con el tutor.
+
+## Tutor
+
+El usuario que quiera ofrecer sus conocimientos podrá utilizar la aplicación como tutor.
+
+Para ello, podrá indicar dentro de su perfil las diferentes materias que está dispuesto a enseñar. Esto permitirá que los estudiantes encuentren con mayor facilidad a personas que puedan ayudarlos en una determinada asignatura.
+
+El tutor también podrá establecer el precio que desea cobrar por sus sesiones.
+
+Cuando un estudiante solicite una sesión y ambas partes lleguen a un acuerdo, el monto establecido deberá ser pagado por el estudiante.
 
 ---
 
-## Sesión
+# Chat
 
-Una vez llegue la hora acordada para la sesión, ya sea en modalidad virtual o presencial, aparecerá en el chat la opción de iniciar un cronómetro.
+La comunicación entre estudiantes y tutores se realizará mediante un sistema de solicitudes.
 
-Ambas partes deberán aceptar el inicio del cronómetro para que la sesión comience. El cronómetro funcionará de acuerdo con la duración configurada previamente.
+Cuando un usuario quiera comunicarse con otro, deberá enviar una solicitud, normalmente relacionada con alguna publicación.
 
-Cinco minutos antes de llegar al límite establecido, aparecerá la opción de extender la sesión por un máximo de 20 minutos.
+El chat solamente estará disponible una vez que la otra persona acepte dicha solicitud.
 
-Una vez finalizado este tiempo, el cronómetro se detendrá y el estudiante recibirá un mensaje preguntando:
+Cuando ambos usuarios hayan decidido realizar una sesión, deberán completar la configuración de la misma.
+
+Primero, el estudiante realizará el pago mediante QR por el monto acordado con el tutor.
+
+Una vez confirmado el pago, podrán establecer dentro del chat:
+
+* Modalidad de la sesión.
+* Fecha.
+* Duración.
+* Configuración acordada entre ambas partes.
+
+Para que la sesión quede confirmada, tanto el estudiante como el tutor deberán aceptar la configuración mediante un botón.
+
+Si posteriormente alguno de los usuarios desea modificar la fecha, duración o modalidad, los cambios también deberán ser aceptados por ambas partes.
+
+---
+
+# Sesiones
+
+Cuando llegue el momento establecido para la sesión, aparecerá dentro del chat una opción para iniciar un cronómetro.
+
+El cronómetro solamente comenzará cuando tanto el estudiante como el tutor hayan confirmado que están listos para iniciar.
+
+El tiempo del cronómetro dependerá de la duración que se haya establecido anteriormente para la sesión.
+
+Cuando falten cinco minutos para finalizar el tiempo contratado, aparecerá una opción para extender la sesión.
+
+La extensión podrá realizarse por un máximo de **20 minutos**.
+
+Una vez que finalice el tiempo disponible, la sesión terminará y se mostrará al estudiante el mensaje:
 
 **“¿Cómo fue tu sesión?”**
 
-A partir de este punto, el estudiante podrá confirmar si está satisfecho con el resultado, además de otorgar una calificación al tutor y escribir un comentario o reseña.
+Desde este apartado, el estudiante podrá indicar si quedó satisfecho con la tutoría, asignar una calificación al tutor y escribir una reseña.
 
-De la misma manera, el tutor podrá calificar al estudiante y dejar una reseña o comentario sobre la sesión.
+El tutor también tendrá la posibilidad de calificar al estudiante y dejar un comentario sobre su experiencia.
 
-Si ambas partes completan este proceso sin presentar complicaciones mayores, el dinero pagado por el estudiante será transferido al tutor.
-
----
-
-## Sistema de calificaciones
-
-Tanto el estudiante como el tutor tendrán una calificación propia y podrán calificar a otros usuarios después de finalizar una sesión.
-
-Estas calificaciones aparecerán en el perfil de cada usuario, acompañadas de las reseñas realizadas por otros usuarios.
-
-Las calificaciones serán importantes para que tanto estudiantes como tutores puedan verificar y respaldar la confiabilidad y profesionalidad de otros usuarios.
-
-En el caso del estudiante, permitirá identificar tutores que puedan ayudarlo de manera adecuada. En el caso del tutor, permitirá conocer la disposición y comportamiento del estudiante durante las sesiones.
+Si la sesión termina correctamente y no existen problemas o reclamos importantes, el dinero pagado por el estudiante será liberado y transferido al tutor.
 
 ---
 
-# Reglas y condiciones respecto a los usuarios y sesiones
+# Sistema de calificaciones
 
-* **Los estudiantes pueden ser tutores y viceversa:** Ambos roles pertenecen a un mismo tipo de usuario, por lo que no es necesario crear cuentas diferentes para cada rol.
+Después de finalizar una sesión, tanto el estudiante como el tutor podrán calificarse mutuamente.
 
-* **Ambos pueden calificarse:** Tanto estudiantes como tutores pueden calificarse después de una sesión. Esto permite evaluar la calidad de la tutoría y también detectar posibles intentos de fraude o comportamientos inadecuados por parte de cualquiera de los usuarios.
+Cada usuario contará con una calificación visible en su perfil, además de las reseñas que hayan dejado otros usuarios.
 
-* **Ambos pueden realizar publicaciones:** El estudiante puede publicar anuncios solicitando ayuda y también puede visualizar publicaciones de tutores que ofrecen sus servicios. De la misma manera, el tutor puede publicar anuncios ofreciendo sus servicios y visualizar publicaciones de estudiantes que necesitan ayuda.
+Este sistema permitirá que las personas puedan conocer las experiencias anteriores de otros usuarios antes de decidir realizar una sesión con ellos.
+
+Para los estudiantes, las calificaciones servirán como referencia para encontrar tutores confiables y capaces de ayudarlos.
+
+Para los tutores, las calificaciones permitirán conocer el comportamiento y disposición de los estudiantes con los que podrían trabajar.
+
+De esta manera, la reputación de ambos roles tendrá importancia dentro de la plataforma.
 
 ---
 
-## Cancelación de sesiones
+# Reglas generales de usuarios y sesiones
 
-La cancelación de una sesión estará determinada por las siguientes condiciones:
+* **Un mismo usuario puede cumplir ambos roles:** Una persona puede utilizar UPLY como estudiante y también como tutor. No será necesario crear una cuenta diferente para cada función.
 
-| Momento de cancelación     | Iniciador              | Estado de la sesión  | Acción sobre la pasarela de pago                           |
-| -------------------------- | ---------------------- | -------------------- | ---------------------------------------------------------- |
-| >24 hrs antes              | Alumno o tutor         | `CANCELLED_EARLY`    | `VOID_AUTHORIZATION`                                       |
-| <24 hrs antes              | Alumno                 | `CANCELLED_LATE`     | `CAPTURE` parcial (penalización al alumno / pago al tutor) |
-| <24 hrs antes              | Tutor                  | `CANCELLED_BY_TUTOR` | `VOID_AUTHORIZATION` (reembolso 100%)                      |
-| No-Show (sin inicio)       | Tutor no aparece       | `NO_SHOW_TUTOR`      | `VOID_AUTHORIZATION` (reembolso 100%)                      |
-| En curso (<50% del tiempo) | Interrupción reportada | `DISPUTED`           | Retención en espera de revisión de soporte                 |
+* **Calificación entre ambas partes:** Tanto el estudiante como el tutor podrán calificarse después de una sesión. Esto permitirá evaluar tanto la calidad de la tutoría como el comportamiento del estudiante y ayudar a identificar posibles intentos de fraude.
 
+* **Publicaciones para ambos roles:** Los estudiantes podrán publicar solicitudes indicando que necesitan ayuda con alguna materia. Los tutores podrán publicar anuncios ofreciendo sus servicios. Ambos usuarios podrán visualizar publicaciones correspondientes al rol que les interese.
+
+---
+
+# Cancelación de sesiones
+
+La plataforma tendrá diferentes condiciones dependiendo del momento y de la persona que cancele una sesión.
+
+| Momento de cancelación                    | Quién cancela               | Estado               | Acción sobre el pago                                           |
+| ----------------------------------------- | --------------------------- | -------------------- | -------------------------------------------------------------- |
+| Más de 24 horas antes                     | Estudiante o tutor          | `CANCELLED_EARLY`    | `VOID_AUTHORIZATION`                                           |
+| Menos de 24 horas antes                   | Estudiante                  | `CANCELLED_LATE`     | `CAPTURE` parcial (penalización al estudiante / pago al tutor) |
+| Menos de 24 horas antes                   | Tutor                       | `CANCELLED_BY_TUTOR` | `VOID_AUTHORIZATION` (reembolso del 100%)                      |
+| No-Show, sin inicio                       | El tutor no se presenta     | `NO_SHOW_TUTOR`      | `VOID_AUTHORIZATION` (reembolso del 100%)                      |
+| Sesión iniciada, menos del 50% del tiempo | Se reporta una interrupción | `DISPUTED`           | El dinero queda retenido hasta una revisión de soporte         |
+ 
