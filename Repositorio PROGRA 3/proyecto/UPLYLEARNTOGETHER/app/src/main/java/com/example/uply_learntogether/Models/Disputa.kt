@@ -12,5 +12,5 @@ class Disputa(
     private val usuario: Usuario
 ) {
     fun reportar() {}
-    fun resolver() {}
+    fun resolver(resolucion: String) {}
 }

@@ -409,7 +409,7 @@ fun PublishScreen(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "4.9 • UMSA",
+                                        text = "4.9 • UPB",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )

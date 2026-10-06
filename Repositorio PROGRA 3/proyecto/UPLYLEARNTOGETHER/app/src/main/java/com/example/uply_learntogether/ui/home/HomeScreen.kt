@@ -325,7 +325,7 @@ fun HomeFeedContent(usuario: Usuario, onCerrarSesion: () -> Unit) {
                     subtitle = "Cálculo I  •  2.º semestre",
                     description = "Te ayudo a entender límites y derivadas con ejercicios paso a paso.",
                     tutorName = "Diego Vargas",
-                    tutorDetails = "★ 4.9 • UMSA",
+                    tutorDetails = "★ 4.9 • UPB",
                     price = "Bs 35 / hora"
                 )
             }

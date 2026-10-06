@@ -149,7 +149,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Ingeniería de Sistemas · UMSA",
+                    text = "Ingeniería de Sistemas · UPB",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
