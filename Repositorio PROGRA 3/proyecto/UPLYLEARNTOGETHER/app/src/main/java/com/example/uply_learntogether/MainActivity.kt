@@ -23,6 +23,7 @@ import com.example.uply_learntogether.ui.explore.ExploreScreen
 import com.example.uply_learntogether.ui.home.HomeScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
 import com.example.uply_learntogether.ui.login.LoginViewModel
+import com.example.uply_learntogether.ui.profile.ProfileScreen
 import com.example.uply_learntogether.ui.publish.PublishScreen
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
@@ -62,25 +63,29 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onCerrarSesion = { loginViewModel.cerrarSesion() },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },
-                onChatClick = { currentScreen = "conversations" }
+                onChatClick = { currentScreen = "conversations" },
+                onProfileClick = { currentScreen = "profile" }
             )
             "explore" -> ExploreScreen(
                 onHomeClick = { currentScreen = "home" },
                 onBackClick = { currentScreen = "home" },
                 onPublishClick = { currentScreen = "publish" },
-                onChatClick = { currentScreen = "conversations" }
+                onChatClick = { currentScreen = "conversations" },
+                onProfileClick = { currentScreen = "profile" }
             )
             "publish" -> PublishScreen(
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onBackClick = { currentScreen = "home" },
-                onChatClick = { currentScreen = "conversations" }
+                onChatClick = { currentScreen = "conversations" },
+                onProfileClick = { currentScreen = "profile" }
             )
             "conversations" -> ConversationsScreen(
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },
                 onBackClick = { currentScreen = "home" },
+                onProfileClick = { currentScreen = "profile" },
                 onConversationClick = { contact ->
                     selectedContactName = contact
                     currentScreen = "chat_detail"
@@ -94,6 +99,7 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },
                 onBackClick = { currentScreen = "conversations" },
+                onProfileClick = { currentScreen = "profile" },
                 onConfigureSessionClick = { currentScreen = "configure_session" }
             )
             "configure_session" -> ScreenConfiguration(
@@ -108,6 +114,14 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                     proposedSessionsTextMap[selectedContactName] = summary
                     currentScreen = "chat_detail"
                 }
+            )
+            "profile" -> ProfileScreen(
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" },
+                onChatClick = { currentScreen = "conversations" },
+                onBackClick = { currentScreen = "home" },
+                onCerrarSesion = { loginViewModel.cerrarSesion() }
             )
         }
     }
