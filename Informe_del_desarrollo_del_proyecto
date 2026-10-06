@@ -28,13 +28,9 @@ de una incidencia ocurrida durante la primera fase del cronograma.
 
 - `El estudiante Ariel Baptista cumplió con sus responsabilidades de manera satisfactoria y dentro del horario acordado. Por el contrario, el estudiante Arturo Arriaza no participó en el desarrollo durante el día domingo, fecha estipulada para coordinar la entrega con su compañero.` 
 
-`2. Revisión de Entrega y Calidad: Posteriormente, el estudiante Arturo Arriaza subió su contribución fuera del tiempo establecido. Al revisar su commit, el equipo constató que el trabajo se encontraba incompleto y evidenciaba haber sido generado de manera apresurada mediante herramientas de inteligencia artificial (uso directo de prompts sin integración ni lógica funcional).` 
+`2. Revisión de Entrega y Calidad: Posteriormente, el estudiante Arturo Arriaza subió su contribución fuera del tiempo establecido. Al revisar su commit, el equipo constató que el trabajo se encontraba incompleto y evidenciaba haber sido generado de manera apresurada.` 
 
 `3. Impacto y Acciones Tomadas: Esta situación generó un retraso significativo para el segundo equipo (Chris Eguino y Marco Avila), cuya fase de desarrollo dependía de los módulos previos. Para garantizar la calidad técnica, el orden y la integridad del proyecto, el equipo tomó la decisión de revertir/eliminar el commit de Arturo Arriaza y rehacer desde cero las funcionalidades que le correspondían.` 
-
-`4. Gestión Posterior:` 
-
-- `El día lunes 5 se intentó establecer contacto con el estudiante para brindarle una oportunidad adicional de aportar al repositorio mediante un nuevo commit; sin embargo, no se logró establecer comunicación ni se recibió respuesta alguna de su parte.` 
 
 # `OBJETIVO DEL REPORTE:` 
 
