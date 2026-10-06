@@ -33,7 +33,8 @@ fun ChatScreen(
     onExploreClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    onConfigureSessionClick: () -> Unit = {}
+    onConfigureSessionClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     var messageText by remember { mutableStateOf("") }
     var isAttachMenuExpanded by remember { mutableStateOf(false) }
@@ -87,7 +88,7 @@ fun ChatScreen(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { }
+                    onClick = onProfileClick
                 )
             }
         }

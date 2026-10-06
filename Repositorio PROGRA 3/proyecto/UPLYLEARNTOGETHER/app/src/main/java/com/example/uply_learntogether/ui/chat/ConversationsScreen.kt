@@ -37,6 +37,7 @@ fun ConversationsScreen(
     onHomeClick: () -> Unit = {},
     onExploreClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onConversationClick: (String) -> Unit = {}
 ) {
@@ -117,7 +118,7 @@ fun ConversationsScreen(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { }
+                    onClick = onProfileClick
                 )
             }
         }

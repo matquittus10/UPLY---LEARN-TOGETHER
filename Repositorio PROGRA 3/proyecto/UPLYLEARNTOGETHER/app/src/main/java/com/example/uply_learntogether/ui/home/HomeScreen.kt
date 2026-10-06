@@ -30,6 +30,7 @@ fun HomeScreen(
     onExploreClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -81,7 +82,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { /* No hace nada por el momento */ }
+                    onClick = onProfileClick
                 )
             }
         }

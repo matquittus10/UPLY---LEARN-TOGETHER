@@ -28,7 +28,8 @@ fun ExploreScreen(
     onHomeClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
-    onChatClick: () -> Unit = {}
+    onChatClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableStateOf(0) } // 0: Ofertas de tutores, 1: Solicitudes de estudiantes
     var searchQuery by remember { mutableStateOf("") }
@@ -85,7 +86,7 @@ fun ExploreScreen(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { }
+                    onClick = onProfileClick
                 )
             }
         }

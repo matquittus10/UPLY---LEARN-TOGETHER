@@ -27,6 +27,7 @@ fun PublishScreen(
     onHomeClick: () -> Unit = {},
     onExploreClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     var selectedType by remember { mutableIntStateOf(0) } // 0: Necesito ayuda, 1: Ofrezco tutoría
@@ -93,7 +94,7 @@ fun PublishScreen(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { }
+                    onClick = onProfileClick
                 )
             }
         }
