@@ -112,7 +112,8 @@ fun ExploreScreen(
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Explorar",
+                    text = "" +
+                            "Explorar",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
                 )
             }
