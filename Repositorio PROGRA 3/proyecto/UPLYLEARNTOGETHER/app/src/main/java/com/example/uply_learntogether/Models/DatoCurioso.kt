@@ -1,4 +1,6 @@
 package com.example.uply_learntogether.Models
 
-class DatoCurioso {
-}
+class DatoCurioso(
+    val texto: String,
+    val categoria: String
+)
