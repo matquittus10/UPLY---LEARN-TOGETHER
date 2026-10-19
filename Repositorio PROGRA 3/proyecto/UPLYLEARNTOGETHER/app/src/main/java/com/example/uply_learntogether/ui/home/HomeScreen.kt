@@ -20,7 +20,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.uply_learntogether.Models.DatoCurioso
 import com.example.uply_learntogether.Models.Usuario
+import com.example.uply_learntogether.data.FactFactsRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -162,6 +165,11 @@ fun HomeFeedContent(usuario: Usuario, onCerrarSesion: () -> Unit) {
                     )
                 }
             }
+        }
+
+        // Dato Curioso Card (API integration)
+        item {
+            DatoCuriosoCard()
         }
 
         // Tutores Destacados
@@ -497,3 +505,141 @@ fun PublicationCard(
         }
     }
 }
+
+@Composable
+fun DatoCuriosoCard() {
+    val fallbackFacts = remember {
+        listOf(
+            DatoCurioso("El cerebro humano adulto consume alrededor del 20% de la energía del cuerpo.", "Ciencia"),
+            DatoCurioso("Las abejas pueden reconocer rostros humanos y recordarlos.", "Naturaleza"),
+            DatoCurioso("La duración de un día en Venus es más larga que la duración de su año.", "Astronomía"),
+            DatoCurioso("El agua caliente puede congelarse más rápido que el agua fría bajo ciertas condiciones (Efecto Mpemba).", "Física"),
+            DatoCurioso("El código fuente original de Apollo 11 fue escrito a mano y pesaba menos que una foto digital.", "Tecnología"),
+            DatoCurioso("En programación, el primer bug real fue una polilla atrapada en un relé del ordenador Harvard Mark II en 1947.", "Programación"),
+            DatoCurioso("El número Pi tiene billones de dígitos calculados sin mostrar un patrón repetitivo.", "Matemáticas"),
+            DatoCurioso("El lenguaje Python fue nombrado en honor al grupo de comedia británico Monty Python.", "Tecnología"),
+            DatoCurioso("La luz del Sol tarda aproximadamente 8 minutos y 20 segundos en llegar a la Tierra.", "Astronomía"),
+            DatoCurioso("El ADN humano comparte aproximadamente el 60% de su código genético con el de un plátano.", "Biología")
+        )
+    }
+
+    var factsList by remember { mutableStateOf<List<DatoCurioso>>(fallbackFacts) }
+    var currentIndex by remember { mutableStateOf(0) }
+    var isLoading by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val fetchFacts = {
+        coroutineScope.launch {
+            isLoading = true
+            val result = FactFactsRepository.obtenerDatosCuriosos(5)
+            if (result.isSuccess) {
+                val list = result.getOrNull()
+                if (!list.isNullOrEmpty()) {
+                    factsList = list
+                    currentIndex = 0
+                }
+            } else {
+                factsList = fallbackFacts
+                currentIndex = (0 until fallbackFacts.size).random()
+            }
+            isLoading = false
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        fetchFacts()
+    }
+
+    val currentFact = factsList.getOrNull(currentIndex) ?: fallbackFacts.random()
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.tertiaryContainer,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                Icons.Default.Lightbulb,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = "Dato Curioso ✦",
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+                        )
+                        if (currentFact.categoria.isNotEmpty()) {
+                            Text(
+                                text = currentFact.categoria,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+
+                IconButton(
+                    onClick = {
+                        if (currentIndex < factsList.size - 1) {
+                            currentIndex++
+                        } else {
+                            currentIndex = 0
+                            fetchFacts()
+                        }
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = "Actualizar",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (isLoading && factsList.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                }
+            } else {
+                Text(
+                    text = currentFact.texto,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
