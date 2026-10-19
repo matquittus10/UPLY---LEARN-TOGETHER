@@ -508,49 +508,37 @@ fun PublicationCard(
 
 @Composable
 fun DatoCuriosoCard() {
-    val fallbackFacts = remember {
-        listOf(
-            DatoCurioso("El cerebro humano adulto consume alrededor del 20% de la energía del cuerpo.", "Ciencia"),
-            DatoCurioso("Las abejas pueden reconocer rostros humanos y recordarlos.", "Naturaleza"),
-            DatoCurioso("La duración de un día en Venus es más larga que la duración de su año.", "Astronomía"),
-            DatoCurioso("El agua caliente puede congelarse más rápido que el agua fría bajo ciertas condiciones (Efecto Mpemba).", "Física"),
-            DatoCurioso("El código fuente original de Apollo 11 fue escrito a mano y pesaba menos que una foto digital.", "Tecnología"),
-            DatoCurioso("En programación, el primer bug real fue una polilla atrapada en un relé del ordenador Harvard Mark II en 1947.", "Programación"),
-            DatoCurioso("El número Pi tiene billones de dígitos calculados sin mostrar un patrón repetitivo.", "Matemáticas"),
-            DatoCurioso("El lenguaje Python fue nombrado en honor al grupo de comedia británico Monty Python.", "Tecnología"),
-            DatoCurioso("La luz del Sol tarda aproximadamente 8 minutos y 20 segundos en llegar a la Tierra.", "Astronomía"),
-            DatoCurioso("El ADN humano comparte aproximadamente el 60% de su código genético con el de un plátano.", "Biología")
-        )
-    }
-
-    var factsList by remember { mutableStateOf<List<DatoCurioso>>(fallbackFacts) }
+    var factsList by remember { mutableStateOf<List<DatoCurioso>>(emptyList()) }
     var currentIndex by remember { mutableStateOf(0) }
-    var isLoading by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
-    val fetchFacts = {
+    val fetchFactsFromApi = {
         coroutineScope.launch {
             isLoading = true
+            errorMessage = null
             val result = FactFactsRepository.obtenerDatosCuriosos(5)
             if (result.isSuccess) {
                 val list = result.getOrNull()
                 if (!list.isNullOrEmpty()) {
                     factsList = list
                     currentIndex = 0
+                } else {
+                    errorMessage = "No se encontraron datos curiosos en la API."
                 }
             } else {
-                factsList = fallbackFacts
-                currentIndex = (0 until fallbackFacts.size).random()
+                errorMessage = "Error al conectar con la API: ${result.exceptionOrNull()?.localizedMessage ?: "Desconocido"}"
             }
             isLoading = false
         }
     }
 
     LaunchedEffect(Unit) {
-        fetchFacts()
+        fetchFactsFromApi()
     }
 
-    val currentFact = factsList.getOrNull(currentIndex) ?: fallbackFacts.random()
+    val currentFact = factsList.getOrNull(currentIndex)
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -591,7 +579,7 @@ fun DatoCuriosoCard() {
                             text = "Dato Curioso ✦",
                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
                         )
-                        if (currentFact.categoria.isNotEmpty()) {
+                        if (currentFact != null && currentFact.categoria.isNotEmpty()) {
                             Text(
                                 text = currentFact.categoria,
                                 style = MaterialTheme.typography.labelSmall,
@@ -603,11 +591,10 @@ fun DatoCuriosoCard() {
 
                 IconButton(
                     onClick = {
-                        if (currentIndex < factsList.size - 1) {
+                        if (factsList.isNotEmpty() && currentIndex < factsList.size - 1) {
                             currentIndex++
                         } else {
-                            currentIndex = 0
-                            fetchFacts()
+                            fetchFactsFromApi()
                         }
                     },
                     modifier = Modifier.size(32.dp)
@@ -623,21 +610,40 @@ fun DatoCuriosoCard() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            if (isLoading && factsList.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    }
                 }
-            } else {
-                Text(
-                    text = currentFact.texto,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                errorMessage != null -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = errorMessage ?: "",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextButton(onClick = { fetchFactsFromApi() }) {
+                            Text("Reintentar")
+                        }
+                    }
+                }
+                currentFact != null -> {
+                    Text(
+                        text = currentFact.texto,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         }
     }
