@@ -512,7 +512,7 @@ fun DatoCuriosoCard() {
         listOf(
             DatoCurioso("El cerebro humano adulto consume alrededor del 20% de la energía del cuerpo.", "Ciencia"),
             DatoCurioso("Las abejas pueden reconocer rostros humanos y recordarlos.", "Naturaleza"),
-            DatoCurioso("La duración de un día en Venus es más larga que la duración de su año.", "Astronomía"),
+            DatoCurioso("La duración de un día en Venus0 es más larga que la duración de su año.", "Astronomía"),
             DatoCurioso("El agua caliente puede congelarse más rápido que el agua fría bajo ciertas condiciones (Efecto Mpemba).", "Física"),
             DatoCurioso("El código fuente original de Apollo 11 fue escrito a mano y pesaba menos que una foto digital.", "Tecnología"),
             DatoCurioso("En programación, el primer bug real fue una polilla atrapada en un relé del ordenador Harvard Mark II en 1947.", "Programación"),
