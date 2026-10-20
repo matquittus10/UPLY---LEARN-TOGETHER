@@ -9,7 +9,7 @@ object RetrofitClient {
     private const val BASE_URL_FactFacts = "https://factfacts.com/"
 
     private val clienteHttp: OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+        .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
         .build()
 
     val FactFactsApi: FactFactsApiService by lazy {

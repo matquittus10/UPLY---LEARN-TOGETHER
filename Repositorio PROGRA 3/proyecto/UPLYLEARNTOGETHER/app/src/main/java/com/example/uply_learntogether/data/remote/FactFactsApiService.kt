@@ -8,5 +8,5 @@ interface FactFactsApiService {
     @GET("api.php")
     suspend fun obtenerDatosCuriosos(
         @Query("count") cantidad: Int,
-    ): FactResponse
+    ): FactApiResponse
 }

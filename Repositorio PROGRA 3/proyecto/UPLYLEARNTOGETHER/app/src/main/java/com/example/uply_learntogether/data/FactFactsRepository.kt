@@ -7,9 +7,13 @@ object FactFactsRepository {
 
     suspend fun obtenerDatosCuriosos(cantidad: Int = 5): Result<List<DatoCurioso>> {
         return try {
-            val response = RetrofitClient.FactFactsApi.obtenerDatosCuriosos(cantidad)
-            val datosCuriosos = MapeadorFactFacts.mapearListaDtoAListaModelo(response.fact)
-            Result.success(datosCuriosos)
+            val apiResponse = RetrofitClient.FactFactsApi.obtenerDatosCuriosos(cantidad)
+            val lista = MapeadorFactFacts.mapearApiResponse(apiResponse)
+            if (lista.isNotEmpty()) {
+                Result.success(lista)
+            } else {
+                Result.success(listOf(DatoCurioso("No hay datos curiosos disponibles.", "General")))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
