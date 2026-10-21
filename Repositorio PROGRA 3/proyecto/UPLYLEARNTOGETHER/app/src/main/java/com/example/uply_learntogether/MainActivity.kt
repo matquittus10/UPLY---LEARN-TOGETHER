@@ -24,6 +24,7 @@ import com.example.uply_learntogether.ui.home.HomeScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
 import com.example.uply_learntogether.ui.login.LoginViewModel
 import com.example.uply_learntogether.ui.profile.ProfileScreen
+import com.example.uply_learntogether.ui.profile.TutoresGuardadosScreen
 import com.example.uply_learntogether.ui.publish.PublishScreen
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
@@ -121,7 +122,16 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onPublishClick = { currentScreen = "publish" },
                 onChatClick = { currentScreen = "conversations" },
                 onBackClick = { currentScreen = "home" },
-                onCerrarSesion = { loginViewModel.cerrarSesion() }
+                onCerrarSesion = { loginViewModel.cerrarSesion() },
+                onTutoresGuardadosClick = { currentScreen = "tutores_guardados" }
+            )
+            "tutores_guardados" -> TutoresGuardadosScreen(
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" },
+                onChatClick = { currentScreen = "conversations" },
+                onProfileClick = { currentScreen = "profile" },
+                onBackClick = { currentScreen = "profile" }
             )
         }
     }
