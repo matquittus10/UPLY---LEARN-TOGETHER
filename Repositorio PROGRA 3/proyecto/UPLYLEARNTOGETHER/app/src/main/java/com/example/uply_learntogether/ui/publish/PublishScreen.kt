@@ -16,10 +16,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.uply_learntogether.data.PublicacionRepository
+import com.example.uply_learntogether.data.local.AppDatabase
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +34,12 @@ fun PublishScreen(
     onProfileClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val repository = remember {
+        PublicacionRepository(AppDatabase.obtener(context).publicacionDao())
+    }
+
     var selectedType by remember { mutableIntStateOf(0) } // 0: Necesito ayuda, 1: Ofrezco tutoría
     var titleText by remember { mutableStateOf("") }
     var selectedMateria by remember { mutableStateOf("Cálculo I") }
@@ -430,7 +440,19 @@ fun PublishScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    onClick = { /* Sin funcionalidad */ },
+                    onClick = {
+                        if (titleText.isNotBlank()) {
+                            coroutineScope.launch {
+                                repository.insertarPublicacion(
+                                    tipo = if (selectedType == 0) "Solicitud de ayuda" else "Oferta de tutoría",
+                                    titulo = titleText,
+                                    materia = selectedMateria,
+                                    descripcion = descriptionText
+                                )
+                                onProfileClick()
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

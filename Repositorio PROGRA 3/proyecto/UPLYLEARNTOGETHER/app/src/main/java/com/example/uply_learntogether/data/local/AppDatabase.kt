@@ -8,13 +8,14 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [TutorFavoritoEntity::class, TutorCacheEntity::class],
-    version = 2,
+    entities = [TutorFavoritoEntity::class, TutorCacheEntity::class, PublicacionEntity::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tutorFavoritoDao(): TutorFavoritoDao
     abstract fun tutorCacheDao(): TutorCacheDao
+    abstract fun publicacionDao(): PublicacionDao
 
     companion object {
         @Volatile
@@ -35,6 +36,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRACION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `publicaciones` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`tipo` TEXT NOT NULL, " +
+                        "`titulo` TEXT NOT NULL, " +
+                        "`materia` TEXT NOT NULL, " +
+                        "`descripcion` TEXT NOT NULL, " +
+                        "`fechaCreacion` INTEGER NOT NULL)"
+                )
+            }
+        }
+
         fun obtener(context: Context): AppDatabase =
             instancia ?: synchronized(this) {
                 instancia ?: Room.databaseBuilder(
@@ -42,7 +57,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "uply_learntogether.db"
                 )
-                    .addMigrations(MIGRACION_1_2)
+                    .addMigrations(MIGRACION_1_2, MIGRACION_2_3)
                     .build()
                     .also { instancia = it }
             }
