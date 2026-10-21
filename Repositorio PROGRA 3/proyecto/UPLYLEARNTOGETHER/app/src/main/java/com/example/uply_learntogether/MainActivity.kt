@@ -23,6 +23,7 @@ import com.example.uply_learntogether.ui.explore.ExploreScreen
 import com.example.uply_learntogether.ui.home.HomeScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
 import com.example.uply_learntogether.ui.login.LoginViewModel
+import com.example.uply_learntogether.ui.profile.MisPublicacionesScreen
 import com.example.uply_learntogether.ui.profile.ProfileScreen
 import com.example.uply_learntogether.ui.profile.TutoresGuardadosScreen
 import com.example.uply_learntogether.ui.publish.PublishScreen
@@ -123,9 +124,18 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onChatClick = { currentScreen = "conversations" },
                 onBackClick = { currentScreen = "home" },
                 onCerrarSesion = { loginViewModel.cerrarSesion() },
-                onTutoresGuardadosClick = { currentScreen = "tutores_guardados" }
+                onTutoresGuardadosClick = { currentScreen = "tutores_guardados" },
+                onMisPublicacionesClick = { currentScreen = "mis_publicaciones" }
             )
             "tutores_guardados" -> TutoresGuardadosScreen(
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" },
+                onChatClick = { currentScreen = "conversations" },
+                onProfileClick = { currentScreen = "profile" },
+                onBackClick = { currentScreen = "profile" }
+            )
+            "mis_publicaciones" -> MisPublicacionesScreen(
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },

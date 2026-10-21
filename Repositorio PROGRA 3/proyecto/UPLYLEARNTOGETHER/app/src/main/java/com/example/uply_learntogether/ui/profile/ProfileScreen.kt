@@ -34,7 +34,8 @@ fun ProfileScreen(
     onChatClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onCerrarSesion: () -> Unit = {},
-    onTutoresGuardadosClick: () -> Unit = {}
+    onTutoresGuardadosClick: () -> Unit = {},
+    onMisPublicacionesClick: () -> Unit = {}
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -199,7 +200,7 @@ fun ProfileScreen(
             ProfileMenuItem(
                 icon = Icons.Default.Book,
                 title = "Mis publicaciones",
-                onClick = { }
+                onClick = onMisPublicacionesClick
             )
             ProfileMenuItem(
                 icon = Icons.Default.DateRange,
