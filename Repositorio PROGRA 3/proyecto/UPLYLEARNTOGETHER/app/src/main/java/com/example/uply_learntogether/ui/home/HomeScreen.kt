@@ -6,6 +6,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,7 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uply_learntogether.Models.DatoCurioso
+import com.example.uply_learntogether.Models.Tutor
 import com.example.uply_learntogether.Models.Usuario
 import com.example.uply_learntogether.data.FactFactsRepository
 import kotlinx.coroutines.launch
@@ -34,7 +37,8 @@ fun HomeScreen(
     onPublishClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = viewModel()
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -91,15 +95,20 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            HomeFeedContent(usuario = usuario, onCerrarSesion = onCerrarSesion)
+            HomeFeedContent(usuario = usuario, onCerrarSesion = onCerrarSesion, viewModel = viewModel)
         }
     }
 }
 
 @Composable
-fun HomeFeedContent(usuario: Usuario, onCerrarSesion: () -> Unit) {
+fun HomeFeedContent(
+    usuario: Usuario,
+    onCerrarSesion: () -> Unit,
+    viewModel: HomeViewModel = viewModel()
+) {
     val categories = listOf("Cálculo I", "Programación I", "Física II", "Álgebra Lineal", "Estadística", "Química General")
     var selectedCategory by remember { mutableStateOf("Cálculo I") }
+    val uiState by viewModel.uiState.collectAsState()
 
     LazyColumn(
         modifier = Modifier
@@ -197,31 +206,14 @@ fun HomeFeedContent(usuario: Usuario, onCerrarSesion: () -> Unit) {
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    item {
+                    items(
+                        items = uiState.tutoresDestacados,
+                        key = { it.id }
+                    ) { tutor ->
                         TutorCard(
-                            name = "Diego Vargas",
-                            subject = "Cálculo I - Álgebra",
-                            rating = "4.9",
-                            reviews = "24 reseñas",
-                            price = "Bs 35 / hora"
-                        )
-                    }
-                    item {
-                        TutorCard(
-                            name = "Valeria Rojas",
-                            subject = "Programación I",
-                            rating = "4.8",
-                            reviews = "24 reseñas",
-                            price = "Bs 40 / hora"
-                        )
-                    }
-                    item {
-                        TutorCard(
-                            name = "Carlos Méndez",
-                            subject = "Física II",
-                            rating = "4.7",
-                            reviews = "18 reseñas",
-                            price = "Bs 35 / hora"
+                            tutor = tutor,
+                            esFavorito = tutor.id in uiState.favoritosIds,
+                            onFavoritoClick = { viewModel.alternarFavorito(tutor) }
                         )
                     }
                 }
@@ -342,68 +334,89 @@ fun HomeFeedContent(usuario: Usuario, onCerrarSesion: () -> Unit) {
 }
 
 @Composable
-fun TutorCard(name: String, subject: String, rating: String, reviews: String, price: String) {
+fun TutorCard(
+    tutor: Tutor,
+    esFavorito: Boolean = false,
+    onFavoritoClick: () -> Unit = {}
+) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.width(180.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.size(56.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(32.dp))
+        Box(modifier = Modifier.fillMaxWidth()) {
+            IconButton(
+                onClick = onFavoritoClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(36.dp)
+                    .padding(4.dp)
+            ) {
+                Icon(
+                    imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = if (esFavorito) "Quitar de favoritos" else "Agregar a favoritos",
+                    tint = if (esFavorito) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(32.dp))
+                        }
+                    }
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .align(Alignment.BottomEnd)
+                    ) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = "Verificado", tint = Color(0xFF2196F3), modifier = Modifier.size(16.dp))
                     }
                 }
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .align(Alignment.BottomEnd)
-                ) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = "Verificado", tint = Color(0xFF2196F3), modifier = Modifier.size(16.dp))
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = tutor.nombre,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1
+                )
+                Text(
+                    text = tutor.materia,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(text = "${tutor.calificacion} (${tutor.resenas})", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = tutor.precio,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                maxLines = 1
-            )
-            Text(
-                text = subject,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
-                Spacer(modifier = Modifier.width(2.dp))
-                Text(text = "$rating ($reviews)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = price,
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-            )
         }
     }
 }
@@ -508,7 +521,22 @@ fun PublicationCard(
 
 @Composable
 fun DatoCuriosoCard() {
-    var factsList by remember { mutableStateOf<List<DatoCurioso>>(emptyList()) }
+    val fallbackFacts = remember {
+        listOf(
+            DatoCurioso("El cerebro humano adulto consume alrededor del 20% de la energía del cuerpo.", "Ciencia"),
+            DatoCurioso("Las abejas pueden reconocer rostros humanos y recordarlos.", "Naturaleza"),
+            DatoCurioso("La duración de un día en Venus es más larga que la duración de su año.", "Astronomía"),
+            DatoCurioso("El agua caliente puede congelarse más rápido que el agua fría bajo ciertas condiciones (Efecto Mpemba).", "Física"),
+            DatoCurioso("El código fuente original de Apollo 11 fue escrito a mano y pesaba menos que una foto digital.", "Tecnología"),
+            DatoCurioso("En programación, el primer bug real fue una polilla atrapada en un relé del ordenador Harvard Mark II en 1947.", "Programación"),
+            DatoCurioso("El número Pi tiene billones de dígitos calculados sin mostrar un patrón repetitivo.", "Matemáticas"),
+            DatoCurioso("El lenguaje Python fue nombrado en honor al grupo de comedia británico Monty Python.", "Tecnología"),
+            DatoCurioso("La luz del Sol tarda aproximadamente 8 minutos y 20 segundos en llegar a la Tierra.", "Astronomía"),
+            DatoCurioso("El ADN humano comparte aproximadamente el 60% de su código genético con el de un plátano.", "Biología")
+        )
+    }
+
+    var factsList by remember { mutableStateOf<List<DatoCurioso>>(fallbackFacts) }
     var currentIndex by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }

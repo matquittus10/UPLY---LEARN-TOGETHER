@@ -33,7 +33,8 @@ fun ProfileScreen(
     onPublishClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    onCerrarSesion: () -> Unit = {}
+    onCerrarSesion: () -> Unit = {},
+    onTutoresGuardadosClick: () -> Unit = {}
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -213,7 +214,7 @@ fun ProfileScreen(
             ProfileMenuItem(
                 icon = Icons.Default.FavoriteBorder,
                 title = "Tutores guardados",
-                onClick = { }
+                onClick = onTutoresGuardadosClick
             )
             ProfileMenuItem(
                 icon = Icons.Default.Settings,
