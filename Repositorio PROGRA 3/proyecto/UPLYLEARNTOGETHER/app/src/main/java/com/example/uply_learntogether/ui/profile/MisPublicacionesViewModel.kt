@@ -16,7 +16,6 @@ data class MisPublicacionesUiState(
     val publicaciones: List<PublicacionEntity> = emptyList(),
     val cargando: Boolean = false
 )
-
 class MisPublicacionesViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = PublicacionRepository(
         AppDatabase.obtener(application).publicacionDao()

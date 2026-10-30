@@ -12,6 +12,7 @@ interface PublicacionDao {
     @Query("SELECT * FROM publicaciones ORDER BY fechaCreacion DESC")
     fun obtenerPublicaciones(): Flow<List<PublicacionEntity>>
 
+   //guardar registros
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarPublicacion(publicacion: PublicacionEntity)
 
