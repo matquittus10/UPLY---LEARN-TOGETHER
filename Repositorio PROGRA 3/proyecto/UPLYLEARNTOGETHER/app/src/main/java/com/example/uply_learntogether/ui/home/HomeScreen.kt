@@ -320,16 +320,27 @@ fun HomeFeedContent(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                PublicationCard(
-                    tag = "Oferta de tutoría",
-                    timeAgo = "Hace 2 h",
-                    title = "Domina las derivadas sin complicarte",
-                    subtitle = "Cálculo I  •  2.º semestre",
-                    description = "Te ayudo a entender límites y derivadas con ejercicios paso a paso.",
-                    tutorName = "Diego Vargas",
-                    tutorDetails = "★ 4.9 • UPB",
-                    price = "Bs 35 / hora"
-                )
+                if (uiState.publicacionesRecientes.isEmpty()) {
+                    Text(
+                        text = "Aún no hay publicaciones recientes.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    uiState.publicacionesRecientes.forEach { pub ->
+                        PublicationCard(
+                            tag = pub.tipo,
+                            timeAgo = "Reciente",
+                            title = pub.titulo,
+                            subtitle = pub.materia,
+                            description = pub.descripcion,
+                            tutorName = usuario.getNombreUsuario(),
+                            tutorDetails = usuario.getCorreoInstitucional(),
+                            price = "A convenir"
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
             }
         }
     }

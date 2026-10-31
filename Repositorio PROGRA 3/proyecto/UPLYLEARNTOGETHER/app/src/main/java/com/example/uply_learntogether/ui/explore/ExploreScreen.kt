@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +23,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
+data class ExploreItem(
+    val title: String,
+    val course: String,
+    val description: String,
+    val author: String,
+    val rating: String,
+    val price: String,
+    val isOffer: Boolean
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreScreen(
@@ -36,6 +47,29 @@ fun ExploreScreen(
     var selectedChip by remember { mutableStateOf("Todas") }
 
     val chips = listOf("Todas", "Cálculo I", "Programación I", "Física II", "Álgebra")
+
+    val allExploreItems = listOf(
+        ExploreItem("Domina las derivadas sin complicarte", "Cálculo I", "Te ayudo a entender límites y derivadas con ejercicios paso a paso.", "Diego Vargas", "4.9 · UPB", "Bs 35 /h", true),
+        ExploreItem("Estructuras de datos en Java", "Programación I", "Aprende recursividad, listas enlazadas y árboles con proyectos prácticos.", "Valeria Rojas", "4.8 · UPB", "Bs 40 /h", true),
+        ExploreItem("Electromagnetismo y Ley de Gauss", "Física II", "Preparación completa para el segundo parcial con exámenes pasados.", "Carlos Méndez", "4.7 · UPB", "Bs 35 /h", true),
+        ExploreItem("Matrices y determinantes sencillos", "Álgebra", "Domina operaciones matriciales, espacios vectoriales y valores propios.", "Lucía Paz", "4.9 · UPB", "Bs 30 /h", true),
+        ExploreItem("Ayuda con integrales dobles", "Cálculo I", "Busco apoyo urgente para resolver problemas de cálculo multivariable.", "Camila Flores", "4.8 · UPB", "", false),
+        ExploreItem("Dudas con POO y Clases", "Programación I", "Necesito asesoría para entender herencia y polimorfismo en C++.", "Mateo Silva", "4.7 · UPB", "", false),
+        ExploreItem("Circuitos de corriente alterna", "Física II", "Busco tutor para entender fasores y impedancia.", "Sofía Morales", "4.9 · UPB", "", false),
+        ExploreItem("Espacios vectoriales explicación", "Álgebra", "Me cuesta entender transformaciones lineales, necesito explicaciones claras.", "Andrés Tapia", "4.6 · UPB", "", false)
+    )
+
+    val filteredItems = allExploreItems.filter { item ->
+        val matchesTab = if (selectedTab == 0) item.isOffer else !item.isOffer
+        val matchesChip = selectedChip == "Todas" || item.course.contains(selectedChip, ignoreCase = true)
+        val matchesSearch = searchQuery.isBlank() ||
+            item.title.contains(searchQuery, ignoreCase = true) ||
+            item.course.contains(searchQuery, ignoreCase = true) ||
+            item.author.contains(searchQuery, ignoreCase = true) ||
+            item.description.contains(searchQuery, ignoreCase = true)
+
+        matchesTab && matchesChip && matchesSearch
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -112,8 +146,7 @@ fun ExploreScreen(
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "" +
-                            "Explorar",
+                    text = "Explorar",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -273,7 +306,7 @@ fun ExploreScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (selectedTab == 0) "12 publicaciones para ti" else "8 solicitudes para ti",
+                    text = "${filteredItems.size} resultados encontrados",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -305,8 +338,25 @@ fun ExploreScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(3) {
-                    ExploreCard(isOffer = selectedTab == 0)
+                if (filteredItems.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No se encontraron resultados para tu búsqueda.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    items(filteredItems) { item ->
+                        ExploreCard(item = item)
+                    }
                 }
             }
         }
@@ -314,7 +364,7 @@ fun ExploreScreen(
 }
 
 @Composable
-fun ExploreCard(isOffer: Boolean) {
+fun ExploreCard(item: ExploreItem) {
     Card(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -334,12 +384,12 @@ fun ExploreCard(isOffer: Boolean) {
             ) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = if (isOffer) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f) else Color(0xFFFFE0B2)
+                    color = if (item.isOffer) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f) else Color(0xFFFFE0B2)
                 ) {
                     Text(
-                        text = if (isOffer) "Oferta de tutoría" else "Solicitud de ayuda",
+                        text = if (item.isOffer) "Oferta de tutoría" else "Solicitud de ayuda",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = if (isOffer) MaterialTheme.colorScheme.primary else Color(0xFFE65100),
+                        color = if (item.isOffer) MaterialTheme.colorScheme.primary else Color(0xFFE65100),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
@@ -354,7 +404,7 @@ fun ExploreCard(isOffer: Boolean) {
 
             // Title
             Text(
-                text = if (isOffer) "Domina las derivadas sin complicarte" else "¿Me ayudas con Física II?",
+                text = item.title,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -363,7 +413,7 @@ fun ExploreCard(isOffer: Boolean) {
 
             // Subtitle / Course
             Text(
-                text = if (isOffer) "Cálculo I · 2.º semestre" else "Física II · 2.º semestre",
+                text = item.course,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -372,7 +422,7 @@ fun ExploreCard(isOffer: Boolean) {
 
             // Description
             Text(
-                text = if (isOffer) "Te ayudo a entender límites y derivadas con ejercicios paso a paso." else "Busco apoyo para mi parcial de electromagnetismo. ¡Aprendamos juntos!",
+                text = item.description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -409,7 +459,7 @@ fun ExploreCard(isOffer: Boolean) {
                     }
                     Column {
                         Text(
-                            text = if (isOffer) "Diego Vargas" else "Camila Flores",
+                            text = item.author,
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -421,7 +471,7 @@ fun ExploreCard(isOffer: Boolean) {
                             )
                             Spacer(modifier = Modifier.width(2.dp))
                             Text(
-                                text = "4.9 · UPB",
+                                text = item.rating,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -429,9 +479,9 @@ fun ExploreCard(isOffer: Boolean) {
                     }
                 }
 
-                if (isOffer) {
+                if (item.isOffer && item.price.isNotEmpty()) {
                     Text(
-                        text = "Bs 35 /h",
+                        text = item.price,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary
                     )
