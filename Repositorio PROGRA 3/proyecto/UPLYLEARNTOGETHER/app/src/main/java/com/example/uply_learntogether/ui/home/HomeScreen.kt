@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,6 +27,7 @@ import com.example.uply_learntogether.Models.DatoCurioso
 import com.example.uply_learntogether.Models.Tutor
 import com.example.uply_learntogether.Models.Usuario
 import com.example.uply_learntogether.data.FactFactsRepository
+import com.example.uply_learntogether.data.local.AppDatabase
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -521,22 +523,7 @@ fun PublicationCard(
 
 @Composable
 fun DatoCuriosoCard() {
-    val fallbackFacts = remember {
-        listOf(
-            DatoCurioso("El cerebro humano adulto consume alrededor del 20% de la energía del cuerpo.", "Ciencia"),
-            DatoCurioso("Las abejas pueden reconocer rostros humanos y recordarlos.", "Naturaleza"),
-            DatoCurioso("La duración de un día en Venus es más larga que la duración de su año.", "Astronomía"),
-            DatoCurioso("El agua caliente puede congelarse más rápido que el agua fría bajo ciertas condiciones (Efecto Mpemba).", "Física"),
-            DatoCurioso("El código fuente original de Apollo 11 fue escrito a mano y pesaba menos que una foto digital.", "Tecnología"),
-            DatoCurioso("En programación, el primer bug real fue una polilla atrapada en un relé del ordenador Harvard Mark II en 1947.", "Programación"),
-            DatoCurioso("El número Pi tiene billones de dígitos calculados sin mostrar un patrón repetitivo.", "Matemáticas"),
-            DatoCurioso("El lenguaje Python fue nombrado en honor al grupo de comedia británico Monty Python.", "Tecnología"),
-            DatoCurioso("La luz del Sol tarda aproximadamente 8 minutos y 20 segundos en llegar a la Tierra.", "Astronomía"),
-            DatoCurioso("El ADN humano comparte aproximadamente el 60% de su código genético con el de un plátano.", "Biología")
-        )
-    }
-
-    var factsList by remember { mutableStateOf<List<DatoCurioso>>(fallbackFacts) }
+    var factsList by remember { mutableStateOf<List<DatoCurioso>>(emptyList()) }
     var currentIndex by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }

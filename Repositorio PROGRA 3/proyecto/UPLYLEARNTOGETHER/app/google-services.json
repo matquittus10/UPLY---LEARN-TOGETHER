@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "206961376118",
+    "project_id": "uplylearntogether",
+    "storage_bucket": "uplylearntogether.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206961376118:android:a7d43106f9f1821dc8d857",
+        "android_client_info": {
+          "package_name": "com.example.uply_learntogether"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdf95w36MFWsq_DwgRRyzV3zHBjwQ4zEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
