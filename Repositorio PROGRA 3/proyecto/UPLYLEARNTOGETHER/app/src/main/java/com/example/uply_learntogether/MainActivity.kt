@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -56,6 +57,11 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
     val proposedSessionsTextMap = remember { mutableStateMapOf<String, String>() }
 
     val usuario = usuarioActual
+
+    LaunchedEffect(usuario) {
+        currentScreen = "home"
+    }
+
     if (usuario == null || !usuario.isSesionIniciada()) {
         LoginScreen(viewModel = loginViewModel)
     } else {
@@ -118,6 +124,7 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 }
             )
             "profile" -> ProfileScreen(
+                usuario = usuario,
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },

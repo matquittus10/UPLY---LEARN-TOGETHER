@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -28,9 +29,13 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     modifier: Modifier = Modifier
 ) {
+    val nombre by viewModel.nombre.collectAsState()
     val correoInstitucional by viewModel.correoInstitucional.collectAsState()
     val contrasena by viewModel.contrasena.collectAsState()
+    val esRegistro by viewModel.esRegistro.collectAsState()
     val errorMensaje by viewModel.errorMensaje.collectAsState()
+    val infoMensaje by viewModel.infoMensaje.collectAsState()
+    val cargando by viewModel.cargando.collectAsState()
     val contrasenaVisible by viewModel.contrasenaVisible.collectAsState()
 
     Box(
@@ -71,7 +76,7 @@ fun LoginScreen(
                 )
 
                 Text(
-                    text = "Inicia sesión para continuar",
+                    text = if (esRegistro) "Crea tu cuenta nueva" else "Inicia sesión para continuar",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
@@ -95,7 +100,37 @@ fun LoginScreen(
                     }
                 }
 
-                // Usamos la variable correoInstitucional definida en el modelo Usuario
+                infoMensaje?.let { info ->
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    ) {
+                        Text(
+                            text = info,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(12.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                if (esRegistro) {
+                    OutlinedTextField(
+                        value = nombre,
+                        onValueChange = viewModel::onNombreChanged,
+                        label = { Text("Nombre y Apellido") },
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
                 OutlinedTextField(
                     value = correoInstitucional,
                     onValueChange = viewModel::onCorreoChanged,
@@ -109,11 +144,10 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Usamos la variable contrasena definida en el modelo Usuario
                 OutlinedTextField(
                     value = contrasena,
                     onValueChange = viewModel::onContrasenaChanged,
-                    label = { Text("Contraseña") },
+                    label = { Text("Contraseña (mín. 6 caracteres)") },
                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                     trailingIcon = {
                         IconButton(onClick = viewModel::toggleContrasenaVisible) {
@@ -132,23 +166,52 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(
-                    onClick = viewModel::iniciarSesion,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Iniciar Sesión",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                    )
+                if (cargando) {
+                    CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                } else {
+                    Button(
+                        onClick = {
+                            if (esRegistro) {
+                                viewModel.registrarUsuario()
+                            } else {
+                                viewModel.iniciarSesion()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = if (esRegistro) "Registrarse" else "Iniciar Sesión",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                TextButton(onClick = viewModel::cargarPrueba) {
-                    Text("Cargar datos de prueba")
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    TextButton(onClick = viewModel::toggleModoRegistro) {
+                        Text(
+                            text = if (esRegistro) "¿Ya tienes cuenta? Inicia sesión" else "¿No tienes cuenta? Regístrate",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                        )
+                    }
+
+                    if (!esRegistro) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        TextButton(onClick = viewModel::enviarCorreoDeRecuperacion) {
+                            Text(
+                                text = "¿Olvidaste tu contraseña?",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
             }
         }

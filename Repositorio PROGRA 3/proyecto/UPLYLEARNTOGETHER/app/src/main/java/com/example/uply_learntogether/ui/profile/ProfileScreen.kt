@@ -23,11 +23,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.uply_learntogether.Models.Usuario
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    usuario: Usuario? = null,
     onHomeClick: () -> Unit = {},
     onExploreClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
@@ -143,7 +145,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Sofía Mendoza",
+                    text = usuario?.getNombreUsuario()?.ifEmpty { "Estudiante" } ?: "Estudiante",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -151,7 +153,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Ingeniería de Sistemas · UPB",
+                    text = usuario?.getCorreoInstitucional()?.ifEmpty { "estudiante@uply.edu" } ?: "estudiante@uply.edu",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -163,7 +165,7 @@ fun ProfileScreen(
                     color = Color(0xFFEFF2FE)
                 ) {
                     Text(
-                        text = "2.º semestre",
+                        text = "Correo Institucional Verificado",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
@@ -179,7 +181,7 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(20.dp),
-                color = Color(0xA9A9A9)
+                color = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 Row(
                     modifier = Modifier
