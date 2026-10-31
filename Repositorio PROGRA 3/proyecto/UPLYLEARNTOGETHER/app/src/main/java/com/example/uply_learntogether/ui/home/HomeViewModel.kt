@@ -4,9 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uply_learntogether.Models.Tutor
+import com.example.uply_learntogether.data.PublicacionRepository
 import com.example.uply_learntogether.data.TutorRepository
 import com.example.uply_learntogether.data.TutoresFavoritosRepository
 import com.example.uply_learntogether.data.local.AppDatabase
+import com.example.uply_learntogether.data.local.PublicacionEntity
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -15,21 +17,25 @@ import kotlinx.coroutines.launch
 
 data class HomeUiState(
     val tutoresDestacados: List<Tutor> = emptyList(),
-    val favoritosIds: List<String> = emptyList()
+    val favoritosIds: List<String> = emptyList(),
+    val publicacionesRecientes: List<PublicacionEntity> = emptyList()
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val database = AppDatabase.obtener(application)
     private val tutorRepository = TutorRepository(database.tutorCacheDao())
     private val favoritosRepository = TutoresFavoritosRepository(database.tutorFavoritoDao())
+    private val publicacionRepository = PublicacionRepository(database.publicacionDao())
 
     val uiState: StateFlow<HomeUiState> = combine(
         tutorRepository.observarTutores(),
-        favoritosRepository.observarIds()
-    ) { tutores, favoritosIds ->
+        favoritosRepository.observarIds(),
+        publicacionRepository.observarPublicaciones()
+    ) { tutores, favoritosIds, publicaciones ->
         HomeUiState(
             tutoresDestacados = tutores,
-            favoritosIds = favoritosIds
+            favoritosIds = favoritosIds,
+            publicacionesRecientes = publicaciones
         )
     }.stateIn(
         scope = viewModelScope,
