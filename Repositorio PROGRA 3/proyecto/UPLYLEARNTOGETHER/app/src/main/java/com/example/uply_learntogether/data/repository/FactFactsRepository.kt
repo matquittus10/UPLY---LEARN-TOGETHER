@@ -1,7 +1,8 @@
-package com.example.uply_learntogether.data
+package com.example.uply_learntogether.data.repository
 
 import com.example.uply_learntogether.Models.DatoCurioso
-import com.example.uply_learntogether.data.remote.RetrofitClient
+import com.example.uply_learntogether.data.mapper.MapeadorFactFacts
+import com.example.uply_learntogether.data.remote.client.RetrofitClient
 
 object FactFactsRepository {
 

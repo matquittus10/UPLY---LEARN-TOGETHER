@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uply_learntogether.Models.Tutor
-import com.example.uply_learntogether.data.TutoresFavoritosRepository
 import com.example.uply_learntogether.data.local.AppDatabase
+import com.example.uply_learntogether.data.repository.TutoresFavoritosRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map

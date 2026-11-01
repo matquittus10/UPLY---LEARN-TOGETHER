@@ -3,9 +3,9 @@ package com.example.uply_learntogether.ui.profile
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.uply_learntogether.data.PublicacionRepository
 import com.example.uply_learntogether.data.local.AppDatabase
-import com.example.uply_learntogether.data.local.PublicacionEntity
+import com.example.uply_learntogether.data.local.entity.PublicacionEntity
+import com.example.uply_learntogether.data.repository.PublicacionRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map

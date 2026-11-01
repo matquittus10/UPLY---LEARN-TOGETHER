@@ -1,4 +1,4 @@
-package com.example.uply_learntogether.data.local
+package com.example.uply_learntogether.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -11,5 +11,6 @@ data class PublicacionEntity(
     val titulo: String,
     val materia: String,
     val descripcion: String,
+    val nombreAutor: String = "Usuario UPLY",
     val fechaCreacion: Long = System.currentTimeMillis()
 )

@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.uply_learntogether.data.local.PublicacionEntity
+import com.example.uply_learntogether.data.local.entity.PublicacionEntity
 import java.text.SimpleDateFormat
 import java.util.*
 

@@ -1,7 +1,6 @@
-package com.example.uply_learntogether.data.remote
+package com.example.uply_learntogether.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
-
 
 data class FactApiResponse(
     @SerializedName("ok") val ok: Boolean?,

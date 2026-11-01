@@ -1,5 +1,7 @@
-package com.example.uply_learntogether.data.remote
+package com.example.uply_learntogether.data.remote.service
 
+import com.example.uply_learntogether.data.remote.dto.SqlRequest
+import com.example.uply_learntogether.data.remote.dto.SqlResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Query

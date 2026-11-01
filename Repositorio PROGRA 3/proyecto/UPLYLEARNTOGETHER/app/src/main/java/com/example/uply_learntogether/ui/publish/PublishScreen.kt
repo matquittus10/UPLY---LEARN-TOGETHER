@@ -20,14 +20,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.uply_learntogether.data.PublicacionRepository
+import com.example.uply_learntogether.Models.Usuario
 import com.example.uply_learntogether.data.local.AppDatabase
+import com.example.uply_learntogether.data.repository.AuthRepository
+import com.example.uply_learntogether.data.repository.PublicacionRepository
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PublishScreen(
+    usuario: Usuario? = null,
     onHomeClick: () -> Unit = {},
     onExploreClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
@@ -38,6 +41,15 @@ fun PublishScreen(
     val coroutineScope = rememberCoroutineScope()
     val repository = remember {
         PublicacionRepository(AppDatabase.obtener(context).publicacionDao())
+    }
+
+    val nombreAutorActual = remember(usuario) {
+        val firebaseUser = AuthRepository.getCurrentUser()
+        when {
+            usuario != null && usuario.getNombreUsuario().isNotBlank() -> usuario.getNombreUsuario()
+            firebaseUser != null && firebaseUser.getNombreUsuario().isNotBlank() -> firebaseUser.getNombreUsuario()
+            else -> "Estudiante UPLY"
+        }
     }
 
     var selectedType by remember { mutableIntStateOf(0) } // 0: Necesito ayuda, 1: Ofrezco tutoría
@@ -407,7 +419,7 @@ fun PublishScreen(
 
                             Column {
                                 Text(
-                                    text = "Camila Flores",
+                                    text = nombreAutorActual,
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                                 )
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -419,7 +431,7 @@ fun PublishScreen(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "4.9 • UPB",
+                                        text = "5.0 • UPB",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -447,7 +459,8 @@ fun PublishScreen(
                                     tipo = if (selectedType == 0) "Solicitud de ayuda" else "Oferta de tutoría",
                                     titulo = titleText,
                                     materia = selectedMateria,
-                                    descripcion = descriptionText
+                                    descripcion = descriptionText,
+                                    nombreAutor = nombreAutorActual
                                 )
                                 onProfileClick()
                             }
