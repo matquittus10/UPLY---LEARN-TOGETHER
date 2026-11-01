@@ -1,4 +1,4 @@
-package com.example.uply_learntogether.data.remote
+package com.example.uply_learntogether.data.remote.dto
 
 data class SqlRequest(
     val sql: String

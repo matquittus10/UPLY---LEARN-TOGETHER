@@ -24,6 +24,8 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenConfiguration(
@@ -34,6 +36,7 @@ fun ScreenConfiguration(
     onChatClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onConfirmSession: (String) -> Unit = {},
+    viewModel: ChatViewModel = viewModel()
 ) {
     // Date Picker state
     var showDatePicker by remember { mutableStateOf(value = false) }
@@ -406,7 +409,19 @@ fun ScreenConfiguration(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    onClick = { onConfirmSession(sessionSummary) },
+                    onClick = {
+                        viewModel.proponerSesion(
+                            nombreContacto = contactName,
+                            materia = "Tutoría con $contactName",
+                            mesTexto = "OCT",
+                            diaTexto = "05",
+                            horarioTexto = formattedTime,
+                            modalidad = finalModality,
+                            precioTexto = "Bs 35",
+                            resumenCompleto = sessionSummary
+                        )
+                        onConfirmSession(sessionSummary)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

@@ -23,6 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 data class ExploreItem(
     val title: String,
     val course: String,
@@ -40,15 +42,17 @@ fun ExploreScreen(
     onBackClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    viewModel: ExploreViewModel = viewModel()
 ) {
     var selectedTab by remember { mutableStateOf(0) } // 0: Ofertas de tutores, 1: Solicitudes de estudiantes
     var searchQuery by remember { mutableStateOf("") }
     var selectedChip by remember { mutableStateOf("Todas") }
 
     val chips = listOf("Todas", "Cálculo I", "Programación I", "Física II", "Álgebra")
+    val userPublications by viewModel.userPublications.collectAsState()
 
-    val allExploreItems = listOf(
+    val defaultExploreItems = listOf(
         ExploreItem("Domina las derivadas sin complicarte", "Cálculo I", "Te ayudo a entender límites y derivadas con ejercicios paso a paso.", "Diego Vargas", "4.9 · UPB", "Bs 35 /h", true),
         ExploreItem("Estructuras de datos en Java", "Programación I", "Aprende recursividad, listas enlazadas y árboles con proyectos prácticos.", "Valeria Rojas", "4.8 · UPB", "Bs 40 /h", true),
         ExploreItem("Electromagnetismo y Ley de Gauss", "Física II", "Preparación completa para el segundo parcial con exámenes pasados.", "Carlos Méndez", "4.7 · UPB", "Bs 35 /h", true),
@@ -58,6 +62,10 @@ fun ExploreScreen(
         ExploreItem("Circuitos de corriente alterna", "Física II", "Busco tutor para entender fasores y impedancia.", "Sofía Morales", "4.9 · UPB", "", false),
         ExploreItem("Espacios vectoriales explicación", "Álgebra", "Me cuesta entender transformaciones lineales, necesito explicaciones claras.", "Andrés Tapia", "4.6 · UPB", "", false)
     )
+
+    val allExploreItems = remember(userPublications) {
+        userPublications + defaultExploreItems
+    }
 
     val filteredItems = allExploreItems.filter { item ->
         val matchesTab = if (selectedTab == 0) item.isOffer else !item.isOffer

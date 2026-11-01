@@ -1,7 +1,9 @@
-package com.example.uply_learntogether.data
+package com.example.uply_learntogether.data.repository
 
 import com.example.uply_learntogether.Models.Tutor
-import com.example.uply_learntogether.data.local.TutorCacheDao
+import com.example.uply_learntogether.data.local.dao.TutorCacheDao
+import com.example.uply_learntogether.data.mapper.aEntidadCache
+import com.example.uply_learntogether.data.mapper.aTutor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

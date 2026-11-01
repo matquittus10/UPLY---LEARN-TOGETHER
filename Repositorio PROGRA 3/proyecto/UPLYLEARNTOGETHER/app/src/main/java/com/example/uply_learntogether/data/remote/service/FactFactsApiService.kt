@@ -1,5 +1,6 @@
-package com.example.uply_learntogether.data.remote
+package com.example.uply_learntogether.data.remote.service
 
+import com.example.uply_learntogether.data.remote.dto.FactApiResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

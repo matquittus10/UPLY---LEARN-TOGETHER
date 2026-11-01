@@ -1,5 +1,6 @@
-package com.example.uply_learntogether.data.remote
+package com.example.uply_learntogether.data.remote.client
 
+import com.example.uply_learntogether.data.remote.service.SQLiteCloudApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

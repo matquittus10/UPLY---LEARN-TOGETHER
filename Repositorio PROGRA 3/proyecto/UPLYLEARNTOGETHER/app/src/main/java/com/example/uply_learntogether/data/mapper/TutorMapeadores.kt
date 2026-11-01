@@ -1,8 +1,8 @@
-package com.example.uply_learntogether.data
+package com.example.uply_learntogether.data.mapper
 
 import com.example.uply_learntogether.Models.Tutor
-import com.example.uply_learntogether.data.local.TutorCacheEntity
-import com.example.uply_learntogether.data.local.TutorFavoritoEntity
+import com.example.uply_learntogether.data.local.entity.TutorCacheEntity
+import com.example.uply_learntogether.data.local.entity.TutorFavoritoEntity
 
 fun TutorFavoritoEntity.aTutor(): Tutor =
     Tutor(

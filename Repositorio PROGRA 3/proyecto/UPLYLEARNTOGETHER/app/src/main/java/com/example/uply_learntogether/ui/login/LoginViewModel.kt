@@ -3,7 +3,7 @@ package com.example.uply_learntogether.ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uply_learntogether.Models.Usuario
-import com.example.uply_learntogether.data.AuthRepository
+import com.example.uply_learntogether.data.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

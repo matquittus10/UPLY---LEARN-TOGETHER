@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
+import androidx.compose.foundation.lazy.items
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -34,10 +37,14 @@ fun ChatScreen(
     onPublishClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onConfigureSessionClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    viewModel: ChatViewModel = viewModel()
 ) {
     var messageText by remember { mutableStateOf("") }
     var isAttachMenuExpanded by remember { mutableStateOf(false) }
+
+    val mensajes by viewModel.obtenerMensajesPorContacto(contactName).collectAsState()
+    val sesionPropuesta by viewModel.obtenerSesionPropuesta(contactName).collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -198,7 +205,7 @@ fun ChatScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "HOY, 2 DE OCTUBRE",
+                            text = "HOY",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 0.8.sp
@@ -208,34 +215,34 @@ fun ChatScreen(
                     }
                 }
 
-                // Received Message 1
-                item {
-                    ReceivedMessageBubble(
-                        text = "¡Hola! Vi que necesitas ayuda con tus estudios. ¿Qué tema te cuesta más?",
-                        time = "14:25"
-                    )
+                // Lista de Mensajes Dinámicos desde Room
+                items(
+                    items = mensajes,
+                    key = { it.id }
+                ) { msg ->
+                    if (msg.esRemitenteUsuario) {
+                        SentMessageBubble(
+                            text = msg.contenido,
+                            time = msg.fechaHoraTexto
+                        )
+                    } else {
+                        ReceivedMessageBubble(
+                            text = msg.contenido,
+                            time = msg.fechaHoraTexto
+                        )
+                    }
                 }
 
-                // Sent Message 1
-                item {
-                    SentMessageBubble(
-                        text = "¡Hola! Tengo parcial la próxima semana y necesito apoyo.",
-                        time = "14:26"
-                    )
-                }
+                // Proposed Session Card ("Sesión propuesta")
+                val mostrarSesion = sesionPropuesta != null || hasProposedSession
+                val resumenSesion = sesionPropuesta?.resumenCompleto ?: proposedSessionSummary
 
-                // Received Message 2
-                item {
-                    ReceivedMessageBubble(
-                        text = "¡Lo practicamos juntos! ¿Te parece bien coordinar una sesión?",
-                        time = "14:27"
-                    )
-                }
-
-                // Proposed Session Card ("Sesión propuesta") - Only rendered if hasProposedSession is true
-                if (hasProposedSession) {
+                if (mostrarSesion) {
                     item {
-                        ProposedSessionCard(sessionDetails = proposedSessionSummary)
+                        ProposedSessionCard(
+                            sessionDetails = resumenSesion,
+                            onConfirmClick = { viewModel.confirmarSesion(contactName) }
+                        )
                     }
                 }
             }
@@ -311,7 +318,12 @@ fun ChatScreen(
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(40.dp)
-                            .clickable { }
+                            .clickable {
+                                if (messageText.isNotBlank()) {
+                                    viewModel.enviarMensaje(contactName, messageText)
+                                    messageText = ""
+                                }
+                            }
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
@@ -411,7 +423,8 @@ fun SentMessageBubble(text: String, time: String) {
 
 @Composable
 fun ProposedSessionCard(
-    sessionDetails: String = "Lunes 5 oct. · 16:00 · Virtual · Bs 35"
+    sessionDetails: String = "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
+    onConfirmClick: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -451,7 +464,7 @@ fun ProposedSessionCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { },
+                onClick = onConfirmClick,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary

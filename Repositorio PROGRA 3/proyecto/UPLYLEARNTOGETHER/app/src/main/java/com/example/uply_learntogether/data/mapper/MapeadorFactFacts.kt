@@ -1,7 +1,7 @@
-package com.example.uply_learntogether.data
+package com.example.uply_learntogether.data.mapper
 
 import com.example.uply_learntogether.Models.DatoCurioso
-import com.example.uply_learntogether.data.remote.FactApiResponse
+import com.example.uply_learntogether.data.remote.dto.FactApiResponse
 
 object MapeadorFactFacts {
 

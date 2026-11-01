@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 data class ConversationItem(
     val id: Int,
     val name: String,
@@ -39,34 +41,21 @@ fun ConversationsScreen(
     onPublishClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    onConversationClick: (String) -> Unit = {}
+    onConversationClick: (String) -> Unit = {},
+    viewModel: ChatViewModel = viewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    val conversacionesState by viewModel.conversacionesState.collectAsState()
 
-    val conversations = remember {
-        listOf(
-            ConversationItem(
-                id = 1,
-                name = "Diego Vargas",
-                lastMessage = "¡Perfecto! Nos vemos el lunes 😊",
-                time = "14:32",
-                unreadCount = 2
-            ),
-            ConversationItem(
-                id = 2,
-                name = "Valeria Rojas",
-                lastMessage = "¡Gracias por la sesión de hoy!",
-                time = "Ayer",
-                unreadCount = 0
-            ),
-            ConversationItem(
-                id = 3,
-                name = "Camila Flores",
-                lastMessage = "¡Gracias por la sesión de hoy!",
-                time = "Ayer",
-                unreadCount = 0
-            )
-        )
+    val conversationsList = remember(conversacionesState, searchQuery) {
+        if (searchQuery.isBlank()) {
+            conversacionesState
+        } else {
+            conversacionesState.filter {
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                it.lastMessage.contains(searchQuery, ignoreCase = true)
+            }
+        }
     }
 
     Scaffold(
@@ -240,9 +229,18 @@ fun ConversationsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
-                items(conversations) { item ->
+                items(
+                    items = conversationsList,
+                    key = { it.id }
+                ) { item ->
                     ConversationRow(
-                        item = item,
+                        item = ConversationItem(
+                            id = item.id.toInt(),
+                            name = item.name,
+                            lastMessage = item.lastMessage,
+                            time = item.time,
+                            unreadCount = item.unreadCount
+                        ),
                         onClick = { onConversationClick(item.name) }
                     )
                     HorizontalDivider(

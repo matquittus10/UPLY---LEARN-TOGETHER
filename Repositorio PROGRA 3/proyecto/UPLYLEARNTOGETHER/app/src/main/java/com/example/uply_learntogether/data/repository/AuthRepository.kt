@@ -1,4 +1,4 @@
-package com.example.uply_learntogether.data
+package com.example.uply_learntogether.data.repository
 
 import com.example.uply_learntogether.Models.Usuario
 import com.google.firebase.auth.FirebaseAuth

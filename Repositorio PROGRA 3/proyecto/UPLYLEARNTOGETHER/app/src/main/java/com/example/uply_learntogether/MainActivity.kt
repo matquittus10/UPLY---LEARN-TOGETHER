@@ -82,6 +82,7 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onProfileClick = { currentScreen = "profile" }
             )
             "publish" -> PublishScreen(
+                usuario = usuario,
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onBackClick = { currentScreen = "home" },
