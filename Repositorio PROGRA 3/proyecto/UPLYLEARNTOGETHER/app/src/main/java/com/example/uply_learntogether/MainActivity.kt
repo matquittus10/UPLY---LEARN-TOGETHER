@@ -22,6 +22,7 @@ import com.example.uply_learntogether.ui.chat.ConversationsScreen
 import com.example.uply_learntogether.ui.chat.ScreenConfiguration
 import com.example.uply_learntogether.ui.explore.ExploreScreen
 import com.example.uply_learntogether.ui.home.HomeScreen
+import com.example.uply_learntogether.ui.home.MisSesionesScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
 import com.example.uply_learntogether.ui.login.LoginViewModel
 import com.example.uply_learntogether.ui.profile.MisPublicacionesScreen
@@ -73,7 +74,17 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },
                 onChatClick = { currentScreen = "conversations" },
-                onProfileClick = { currentScreen = "profile" }
+                onProfileClick = { currentScreen = "profile" },
+                onVerTodasSesionesClick = { currentScreen = "mis_sesiones" }
+            )
+            "mis_sesiones" -> MisSesionesScreen(
+                usuario = usuario,
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" },
+                onChatClick = { currentScreen = "conversations" },
+                onProfileClick = { currentScreen = "profile" },
+                onBackClick = { currentScreen = "home" }
             )
             "explore" -> ExploreScreen(
                 onHomeClick = { currentScreen = "home" },
