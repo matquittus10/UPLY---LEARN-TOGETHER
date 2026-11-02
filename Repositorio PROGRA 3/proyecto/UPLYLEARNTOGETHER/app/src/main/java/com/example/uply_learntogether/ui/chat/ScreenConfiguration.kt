@@ -25,6 +25,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 import androidx.lifecycle.viewmodel.compose.viewModel
+import java.time.LocalDate
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,15 +57,21 @@ fun ScreenConfiguration(
     var selectedModality by remember { mutableIntStateOf(0) } // 0: Virtual, 1: Presencial
 
     // Format selected date
-    val formattedDate = remember(datePickerState.selectedDateMillis) {
+    val selectedDateObj = remember(datePickerState.selectedDateMillis) {
         if (datePickerState.selectedDateMillis != null) {
-            val instant = Instant.ofEpochMilli(datePickerState.selectedDateMillis!!)
-            val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
-            date.format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM, yyyy"))
+            Instant.ofEpochMilli(datePickerState.selectedDateMillis!!)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
         } else {
-            "Lunes, 5 de Octubre de 2025"
+            LocalDate.now()
         }
     }
+
+    val diaTexto = selectedDateObj.dayOfMonth.toString().padStart(2, '0')
+    val mesTexto = selectedDateObj.format(DateTimeFormatter.ofPattern("MMM", Locale.forLanguageTag("es"))).uppercase().replace(".", "")
+    val formattedDate = selectedDateObj.format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM, yyyy",
+        Locale.forLanguageTag("es")
+    ))
 
     // Format selected time
     val formattedTime = remember(timePickerState.hour, timePickerState.minute) {
@@ -415,8 +423,8 @@ fun ScreenConfiguration(
                             nombreContacto = contactName,
                             targetUid = targetUid,
                             materia = "Tutoría con $contactName",
-                            mesTexto = "OCT",
-                            diaTexto = "05",
+                            mesTexto = mesTexto,
+                            diaTexto = diaTexto,
                             horarioTexto = formattedTime,
                             modalidad = finalModality,
                             precioTexto = "Bs 35",

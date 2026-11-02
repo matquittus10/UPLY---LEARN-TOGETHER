@@ -44,19 +44,6 @@ class SesionRepository(private val sesionDao: SesionDao) {
     }
 
     suspend fun inicializarSesionesSiEstaVacio() {
-        if (sesionDao.contarSesiones() == 0) {
-            val sesionInicial = SesionEntity(
-                nombreContacto = "Diego Vargas",
-                materia = "Cálculo I con Diego",
-                mesTexto = "OCT",
-                diaTexto = "05",
-                horarioTexto = "16:00 - 17:00",
-                modalidad = "Virtual",
-                precioTexto = "Bs 35",
-                resumenCompleto = "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
-                estado = "CONFIRMADA"
-            )
-            sesionDao.insertarSesion(sesionInicial)
-        }
+        sesionDao.eliminarSesionEjemplo()
     }
 }

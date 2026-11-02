@@ -27,4 +27,7 @@ interface SesionDao {
 
     @Query("SELECT COUNT(*) FROM sesiones")
     suspend fun contarSesiones(): Int
+
+    @Query("DELETE FROM sesiones WHERE nombreContacto = 'Diego Vargas'")
+    suspend fun eliminarSesionEjemplo()
 }
