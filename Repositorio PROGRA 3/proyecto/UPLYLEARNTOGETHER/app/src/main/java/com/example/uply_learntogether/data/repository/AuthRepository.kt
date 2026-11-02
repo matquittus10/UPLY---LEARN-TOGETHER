@@ -61,12 +61,28 @@ object AuthRepository {
             val authResult = auth.signInWithEmailAndPassword(correoLimpio, contrasenaLimpia).await()
             val firebaseUser = authResult.user
             if (firebaseUser != null) {
+                val nombre = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "Usuario"
                 val usuario = Usuario(
                     idUsuario = firebaseUser.uid,
-                    nombreUsuario = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "Usuario",
+                    nombreUsuario = nombre,
                     correoInstitucional = firebaseUser.email ?: correoLimpio
                 )
                 usuario.iniciarSesionCuenta()
+
+                try {
+                    val userData = hashMapOf(
+                        "uid" to firebaseUser.uid,
+                        "nombreUsuario" to nombre,
+                        "correo" to (firebaseUser.email ?: correoLimpio)
+                    )
+                    FirebaseFirestore.getInstance()
+                        .collection("usuarios")
+                        .document(firebaseUser.uid)
+                        .set(userData, SetOptions.merge())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
                 Result.success(usuario)
             } else {
                 Result.failure(Exception("No se pudo obtener el usuario de Firebase."))

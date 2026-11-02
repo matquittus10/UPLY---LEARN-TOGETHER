@@ -52,6 +52,7 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
     val usuarioActual by loginViewModel.usuarioActual.collectAsState()
     var currentScreen by remember { mutableStateOf("home") }
     var selectedContactName by remember { mutableStateOf("Valeria Rojas") }
+    var selectedContactUid by remember { mutableStateOf("") }
 
     val proposedSessionsMap = remember { mutableStateMapOf<String, Boolean>() }
     val proposedSessionsTextMap = remember { mutableStateMapOf<String, String>() }
@@ -95,13 +96,15 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onPublishClick = { currentScreen = "publish" },
                 onBackClick = { currentScreen = "home" },
                 onProfileClick = { currentScreen = "profile" },
-                onConversationClick = { contact ->
+                onConversationClick = { contact, uid ->
                     selectedContactName = contact
+                    selectedContactUid = uid
                     currentScreen = "chat_detail"
                 }
             )
             "chat_detail" -> ChatScreen(
                 contactName = selectedContactName,
+                targetUid = selectedContactUid,
                 hasProposedSession = proposedSessionsMap[selectedContactName] == true,
                 proposedSessionSummary = proposedSessionsTextMap[selectedContactName] ?: "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
                 onHomeClick = { currentScreen = "home" },

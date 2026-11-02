@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun ChatScreen(
     contactName: String = "Valeria Rojas",
+    targetUid: String = "",
     hasProposedSession: Boolean = false,
     proposedSessionSummary: String = "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
     onHomeClick: () -> Unit = {},
@@ -43,7 +44,7 @@ fun ChatScreen(
     var messageText by remember { mutableStateOf("") }
     var isAttachMenuExpanded by remember { mutableStateOf(false) }
 
-    val mensajes by viewModel.obtenerMensajesPorContacto(contactName).collectAsState()
+    val mensajes by viewModel.obtenerMensajesPorContacto(contactName, targetUid).collectAsState()
     val sesionPropuesta by viewModel.obtenerSesionPropuesta(contactName).collectAsState()
 
     Scaffold(
@@ -320,7 +321,7 @@ fun ChatScreen(
                             .size(40.dp)
                             .clickable {
                                 if (messageText.isNotBlank()) {
-                                    viewModel.enviarMensaje(contactName, messageText)
+                                    viewModel.enviarMensaje(contactName, messageText, targetUid)
                                     messageText = ""
                                 }
                             }

@@ -41,13 +41,25 @@ fun ConversationsScreen(
     onPublishClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    onConversationClick: (String) -> Unit = {},
+    onConversationClick: (String, String) -> Unit = { _, _ -> },
     viewModel: ChatViewModel = viewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var showNewChatDialog by remember { mutableStateOf(false) }
     var newChatContactName by remember { mutableStateOf("") }
     val conversacionesState by viewModel.conversacionesState.collectAsState()
+    val usuariosRegistrados by viewModel.usuariosRegistradosState.collectAsState()
+
+    val usuariosFiltrados = remember(usuariosRegistrados, newChatContactName) {
+        if (newChatContactName.isBlank()) {
+            usuariosRegistrados
+        } else {
+            usuariosRegistrados.filter {
+                it.getNombreUsuario().contains(newChatContactName, ignoreCase = true) ||
+                it.getCorreoInstitucional().contains(newChatContactName, ignoreCase = true)
+            }
+        }
+    }
 
     val conversationsList = remember(conversacionesState, searchQuery) {
         if (searchQuery.isBlank()) {
@@ -243,7 +255,7 @@ fun ConversationsScreen(
                             time = item.time,
                             unreadCount = item.unreadCount
                         ),
-                        onClick = { onConversationClick(item.name) }
+                        onClick = { onConversationClick(item.name, item.targetUid) }
                     )
                     HorizontalDivider(
                         modifier = Modifier.padding(start = 72.dp, end = 16.dp),
@@ -258,16 +270,76 @@ fun ConversationsScreen(
                 onDismissRequest = { showNewChatDialog = false },
                 title = { Text(text = "Iniciar Nueva Conversación") },
                 text = {
-                    Column {
-                        Text(text = "Ingresa el nombre o correo de la persona registrada con quien deseas chatear:")
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Selecciona a un usuario registrado o busca por su nombre/correo:",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedTextField(
                             value = newChatContactName,
                             onValueChange = { newChatContactName = it },
-                            label = { Text("Nombre o Correo del usuario") },
+                            label = { Text("Buscar nombre o correo") },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        if (usuariosFiltrados.isEmpty()) {
+                            Text(
+                                text = "No se encontraron otros usuarios registrados.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 200.dp)
+                            ) {
+                                items(usuariosFiltrados) { user ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                showNewChatDialog = false
+                                                newChatContactName = ""
+                                                onConversationClick(user.getNombreUsuario(), user.getIdUsuario())
+                                            }
+                                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Surface(
+                                            shape = CircleShape,
+                                            color = MaterialTheme.colorScheme.primaryContainer,
+                                            modifier = Modifier.size(36.dp)
+                                        ) {
+                                            Box(contentAlignment = Alignment.Center) {
+                                                Text(
+                                                    text = user.getNombreUsuario().take(1).uppercase(),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Column {
+                                            Text(
+                                                text = user.getNombreUsuario(),
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                                            )
+                                            if (user.getCorreoInstitucional().isNotBlank()) {
+                                                Text(
+                                                    text = user.getCorreoInstitucional(),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                        }
+                                    }
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                                }
+                            }
+                        }
                     }
                 },
                 confirmButton = {
@@ -277,7 +349,7 @@ fun ConversationsScreen(
                             if (contact.isNotEmpty()) {
                                 showNewChatDialog = false
                                 newChatContactName = ""
-                                onConversationClick(contact)
+                                onConversationClick(contact, "")
                             }
                         }
                     ) {

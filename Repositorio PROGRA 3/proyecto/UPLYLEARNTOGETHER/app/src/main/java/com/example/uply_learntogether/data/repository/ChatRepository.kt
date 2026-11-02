@@ -1,5 +1,6 @@
 package com.example.uply_learntogether.data.repository
 
+import com.example.uply_learntogether.Models.Usuario
 import com.example.uply_learntogether.data.local.dao.MensajeDao
 import com.example.uply_learntogether.data.local.entity.MensajeEntity
 import com.google.firebase.auth.FirebaseAuth
@@ -9,7 +10,9 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
@@ -29,7 +32,12 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    private fun getChatId(nombreContacto: String): String {
+    private fun getChatId(nombreContacto: String, targetUid: String = ""): String {
+        val currentUid = auth.currentUser?.uid ?: ""
+        if (targetUid.isNotBlank() && currentUid.isNotBlank()) {
+            return if (currentUid < targetUid) "${currentUid}_${targetUid}" else "${targetUid}_${currentUid}"
+        }
+
         val currentUser = auth.currentUser
         val myIdentifier = currentUser?.displayName
             ?: currentUser?.email?.substringBefore("@")
@@ -41,8 +49,31 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
         return if (u1 < u2) "${u1}__${u2}" else "${u2}__${u1}"
     }
 
-    fun observarMensajesPorContacto(nombreContacto: String): Flow<List<MensajeEntity>> {
-        val chatId = getChatId(nombreContacto)
+    fun observarUsuariosRegistrados(): Flow<List<Usuario>> = callbackFlow {
+        val currentUid = auth.currentUser?.uid ?: ""
+        val listener = firestore.collection("usuarios")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+
+                val usuarios = snapshot.documents.mapNotNull { doc ->
+                    val uid = doc.getString("uid") ?: doc.id
+                    if (uid == currentUid) return@mapNotNull null
+
+                    val nombre = doc.getString("nombreUsuario") ?: "Usuario"
+                    val correo = doc.getString("correo") ?: ""
+                    Usuario(
+                        idUsuario = uid,
+                        nombreUsuario = nombre,
+                        correoInstitucional = correo
+                    )
+                }
+                trySend(usuarios)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    fun observarMensajesPorContacto(nombreContacto: String, targetUid: String = ""): Flow<List<MensajeEntity>> {
+        val chatId = getChatId(nombreContacto, targetUid)
         val currentUserId = auth.currentUser?.uid ?: ""
 
         try {
@@ -92,6 +123,7 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
     suspend fun enviarMensaje(
         nombreContacto: String,
         contenido: String,
+        targetUid: String = "",
         esRemitenteUsuario: Boolean = true
     ) {
         val horaActual = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
@@ -100,7 +132,7 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
         val currentUserName = auth.currentUser?.displayName
             ?: auth.currentUser?.email?.substringBefore("@") ?: "Usuario"
 
-        val chatId = getChatId(nombreContacto)
+        val chatId = getChatId(nombreContacto, targetUid)
 
         // Enviar mensaje a Firebase Firestore para comunicación en tiempo real
         try {
@@ -121,7 +153,7 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
                 "ultimoMensaje" to contenido,
                 "fechaHoraTexto" to horaActual,
                 "fechaTimestamp" to timestamp,
-                "participantes" to listOf(currentUserName, nombreContacto)
+                "participantes" to listOf(currentUserId, targetUid.ifBlank { nombreContacto })
             )
             chatRef.set(chatSummary, SetOptions.merge()).await()
         } catch (e: Exception) {
