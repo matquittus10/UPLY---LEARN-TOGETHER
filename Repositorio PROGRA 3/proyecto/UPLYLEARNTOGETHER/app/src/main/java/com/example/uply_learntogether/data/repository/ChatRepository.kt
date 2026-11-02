@@ -30,10 +30,15 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
     private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private fun getChatId(nombreContacto: String): String {
-        val currentUserId = auth.currentUser?.uid ?: "usuario_local"
-        val cleanContact = nombreContacto.lowercase().trim().replace(" ", "_")
-        val cleanUser = currentUserId.lowercase().trim().replace(" ", "_")
-        return if (cleanUser < cleanContact) "${cleanUser}_${cleanContact}" else "${cleanContact}_${cleanUser}"
+        val currentUser = auth.currentUser
+        val myIdentifier = currentUser?.displayName
+            ?: currentUser?.email?.substringBefore("@")
+            ?: currentUser?.uid
+            ?: "usuario"
+
+        val u1 = myIdentifier.lowercase().trim().replace(" ", "_")
+        val u2 = nombreContacto.lowercase().trim().replace(" ", "_")
+        return if (u1 < u2) "${u1}__${u2}" else "${u2}__${u1}"
     }
 
     fun observarMensajesPorContacto(nombreContacto: String): Flow<List<MensajeEntity>> {
@@ -66,6 +71,7 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
                     if (nuevosMensajes.isNotEmpty()) {
                         repositoryScope.launch {
                             try {
+                                mensajeDao.borrarMensajesPorContacto(nombreContacto)
                                 mensajeDao.insertarMensajes(nuevosMensajes)
                             } catch (e: Exception) {
                                 e.printStackTrace()
@@ -94,19 +100,10 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
         val currentUserName = auth.currentUser?.displayName
             ?: auth.currentUser?.email?.substringBefore("@") ?: "Usuario"
 
-        // 1. Guardar mensaje en la base de datos local Room
-        val mensajeLocal = MensajeEntity(
-            nombreContacto = nombreContacto,
-            contenido = contenido,
-            fechaHoraTexto = horaActual,
-            fechaTimestamp = timestamp,
-            esRemitenteUsuario = esRemitenteUsuario
-        )
-        mensajeDao.insertarMensaje(mensajeLocal)
+        val chatId = getChatId(nombreContacto)
 
-        // 2. Enviar mensaje a Firebase Firestore para comunicación en tiempo real
+        // Enviar mensaje a Firebase Firestore para comunicación en tiempo real
         try {
-            val chatId = getChatId(nombreContacto)
             val mensajeData = hashMapOf(
                 "nombreContacto" to nombreContacto,
                 "remitenteUid" to currentUserId,
@@ -124,11 +121,20 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
                 "ultimoMensaje" to contenido,
                 "fechaHoraTexto" to horaActual,
                 "fechaTimestamp" to timestamp,
-                "participantes" to listOf(currentUserId, nombreContacto)
+                "participantes" to listOf(currentUserName, nombreContacto)
             )
             chatRef.set(chatSummary, SetOptions.merge()).await()
         } catch (e: Exception) {
             e.printStackTrace()
+            // En caso de fallo o fallo de red, guardar localmente
+            val mensajeLocal = MensajeEntity(
+                nombreContacto = nombreContacto,
+                contenido = contenido,
+                fechaHoraTexto = horaActual,
+                fechaTimestamp = timestamp,
+                esRemitenteUsuario = esRemitenteUsuario
+            )
+            mensajeDao.insertarMensaje(mensajeLocal)
         }
     }
 
