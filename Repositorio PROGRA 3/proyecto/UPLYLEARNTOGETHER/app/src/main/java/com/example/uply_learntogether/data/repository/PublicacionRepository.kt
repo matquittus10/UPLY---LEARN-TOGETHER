@@ -17,7 +17,6 @@ class PublicacionRepository(private val dao: PublicacionDao) {
 
     /**
      * Observa las publicaciones en tiempo real desde la colección "publicaciones" de Firestore.
-     * Así, todas las publicaciones creadas en la nube aparecen en la pantalla Explorar y Perfil.
      */
     fun observarPublicaciones(): Flow<List<PublicacionEntity>> = callbackFlow {
         val listener = firestore.collection("publicaciones")
@@ -29,6 +28,7 @@ class PublicacionRepository(private val dao: PublicacionDao) {
 
                 val lista = snapshot.documents.mapNotNull { doc ->
                     val id = doc.id.hashCode().toLong()
+                    val autorUid = doc.getString("autorUid") ?: ""
                     val tipo = doc.getString("tipo") ?: "Oferta de tutoría"
                     val titulo = doc.getString("titulo") ?: ""
                     val materia = doc.getString("materia") ?: ""
@@ -38,6 +38,7 @@ class PublicacionRepository(private val dao: PublicacionDao) {
 
                     PublicacionEntity(
                         id = id,
+                        autorUid = autorUid,
                         tipo = tipo,
                         titulo = titulo,
                         materia = materia,
@@ -62,6 +63,7 @@ class PublicacionRepository(private val dao: PublicacionDao) {
         nombreAutor: String = "Usuario UPLY",
     ) {
         val fechaActual = System.currentTimeMillis()
+        val currentUid = auth.currentUser?.uid ?: ""
 
         // 1. Guardar en Firestore para sincronización global
         try {
@@ -72,7 +74,7 @@ class PublicacionRepository(private val dao: PublicacionDao) {
                 "descripcion" to descripcion,
                 "nombreAutor" to nombreAutor,
                 "fechaCreacion" to fechaActual,
-                "autorUid" to (auth.currentUser?.uid ?: ""),
+                "autorUid" to currentUid,
             )
             firestore.collection("publicaciones").add(pubMap).await()
         } catch (e: Exception) {
@@ -81,6 +83,7 @@ class PublicacionRepository(private val dao: PublicacionDao) {
 
         // 2. Guardar también localmente en Room
         val entidad = PublicacionEntity(
+            autorUid = currentUid,
             tipo = tipo,
             titulo = titulo,
             materia = materia,

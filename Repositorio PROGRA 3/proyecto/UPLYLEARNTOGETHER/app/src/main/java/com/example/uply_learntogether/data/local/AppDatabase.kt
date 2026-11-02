@@ -25,7 +25,7 @@ import com.example.uply_learntogether.data.local.entity.TutorFavoritoEntity
         MensajeEntity::class,
         SesionEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -103,6 +103,14 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRACION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE `publicaciones` ADD COLUMN `autorUid` TEXT NOT NULL DEFAULT ''"
+                )
+            }
+        }
+
         fun obtener(context: Context): AppDatabase =
             instancia ?: synchronized(this) {
                 instancia ?: Room.databaseBuilder(
@@ -110,7 +118,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "uply_learntogether.db"
                 )
-                    .addMigrations(MIGRACION_1_2, MIGRACION_2_3, MIGRACION_3_4, MIGRACION_4_5)
+                    .addMigrations(MIGRACION_1_2, MIGRACION_2_3, MIGRACION_3_4, MIGRACION_4_5, MIGRACION_5_6)
                     .build()
                     .also { instancia = it }
             }

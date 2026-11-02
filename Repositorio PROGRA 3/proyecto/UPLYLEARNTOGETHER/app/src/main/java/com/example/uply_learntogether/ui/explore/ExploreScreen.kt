@@ -496,23 +496,7 @@ fun ExploreCard(item: ExploreItem) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // Action Button inside card
-            Button(
-                onClick = { },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Enviar solicitud de chat",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
         }
     }
 }
