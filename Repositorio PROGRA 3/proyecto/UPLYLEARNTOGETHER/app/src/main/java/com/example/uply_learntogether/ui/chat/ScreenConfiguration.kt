@@ -25,6 +25,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
 import java.util.Locale
 
@@ -419,10 +420,14 @@ fun ScreenConfiguration(
             ) {
                 Button(
                     onClick = {
+                        val currentUserName = FirebaseAuth.getInstance().currentUser?.displayName
+                            ?: FirebaseAuth.getInstance().currentUser?.email?.substringBefore("@")
+                            ?: "Usuario"
+
                         viewModel.proponerSesion(
                             nombreContacto = contactName,
                             targetUid = targetUid,
-                            materia = "Tutoría con $contactName",
+                            materia = "Tutoría con $currentUserName",
                             mesTexto = mesTexto,
                             diaTexto = diaTexto,
                             horarioTexto = formattedTime,

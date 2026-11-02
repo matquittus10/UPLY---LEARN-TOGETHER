@@ -14,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -159,7 +158,7 @@ fun SesionItemCard(sesion: SesionEntity) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isConfirmed) MaterialTheme.colorScheme.surface else Color(0xFFEFF2FE)
+            containerColor = if (isConfirmed) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
@@ -172,7 +171,7 @@ fun SesionItemCard(sesion: SesionEntity) {
         ) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = if (isConfirmed) MaterialTheme.colorScheme.primaryContainer else Color(0xFFD3E3FD),
+                color = if (isConfirmed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
                 modifier = Modifier.size(56.dp)
             ) {
                 Column(
@@ -182,12 +181,12 @@ fun SesionItemCard(sesion: SesionEntity) {
                     Text(
                         text = sesion.mesTexto.ifBlank { "SES" },
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = if (isConfirmed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
                         text = sesion.diaTexto.ifBlank { "01" },
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = if (isConfirmed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
             }
@@ -202,17 +201,18 @@ fun SesionItemCard(sesion: SesionEntity) {
                 ) {
                     Text(
                         text = sesion.materia.ifBlank { "Tutoría con ${sesion.nombreContacto}" },
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = if (isConfirmed) Color(0xFFE8F5E9) else Color(0xFFFFF3E0)
+                        color = if (isConfirmed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.tertiaryContainer
                     ) {
                         Text(
                             text = if (isConfirmed) "Confirmada" else "Propuesta",
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                             style = MaterialTheme.typography.labelSmall.copy(
-                                color = if (isConfirmed) Color(0xFF2E7D32) else Color(0xFFE65100),
+                                color = if (isConfirmed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onTertiaryContainer,
                                 fontWeight = FontWeight.Bold
                             )
                         )

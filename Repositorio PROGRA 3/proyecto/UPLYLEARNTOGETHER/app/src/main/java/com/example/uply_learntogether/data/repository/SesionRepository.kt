@@ -23,36 +23,35 @@ class SesionRepository(private val sesionDao: SesionDao) {
     fun observarProximaSesionConfirmada(): Flow<SesionEntity?> = callbackFlow {
         val listener = firestore.collection("sesiones")
             .whereEqualTo("estado", "CONFIRMADA")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(1)
             .addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null || snapshot.isEmpty) {
                     trySend(null)
                     return@addSnapshotListener
                 }
-                val doc = snapshot.documents.first()
-                val nombre = doc.getString("nombreContacto") ?: ""
-                val materia = doc.getString("materia") ?: ""
-                val mes = doc.getString("mesTexto") ?: ""
-                val dia = doc.getString("diaTexto") ?: ""
-                val horario = doc.getString("horarioTexto") ?: ""
-                val modalidad = doc.getString("modalidad") ?: ""
-                val precio = doc.getString("precioTexto") ?: ""
-                val resumen = doc.getString("resumenCompleto") ?: ""
-                val estado = doc.getString("estado") ?: "CONFIRMADA"
+                val sesion = snapshot.documents.mapNotNull { doc ->
+                    val nombre = doc.getString("nombreContacto") ?: return@mapNotNull null
+                    val materia = doc.getString("materia") ?: ""
+                    val mes = doc.getString("mesTexto") ?: ""
+                    val dia = doc.getString("diaTexto") ?: ""
+                    val horario = doc.getString("horarioTexto") ?: ""
+                    val modalidad = doc.getString("modalidad") ?: ""
+                    val precio = doc.getString("precioTexto") ?: ""
+                    val resumen = doc.getString("resumenCompleto") ?: ""
 
-                val sesion = SesionEntity(
-                    id = abs(doc.id.hashCode()).toLong(),
-                    nombreContacto = nombre,
-                    materia = materia,
-                    mesTexto = mes,
-                    diaTexto = dia,
-                    horarioTexto = horario,
-                    modalidad = modalidad,
-                    precioTexto = precio,
-                    resumenCompleto = resumen,
-                    estado = estado
-                )
+                    SesionEntity(
+                        id = abs(doc.id.hashCode()).toLong(),
+                        nombreContacto = nombre,
+                        materia = materia,
+                        mesTexto = mes,
+                        diaTexto = dia,
+                        horarioTexto = horario,
+                        modalidad = modalidad,
+                        precioTexto = precio,
+                        resumenCompleto = resumen,
+                        estado = "CONFIRMADA"
+                    )
+                }.firstOrNull()
+
                 trySend(sesion)
             }
         awaitClose { listener.remove() }
