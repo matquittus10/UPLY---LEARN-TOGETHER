@@ -104,6 +104,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             chatRepository.proponerSesion(nombreContacto, targetUid, resumenCompleto)
             sesionRepository.proponerSesion(
                 nombreContacto = nombreContacto,
+                targetUid = targetUid,
                 materia = materia,
                 mesTexto = mesTexto,
                 diaTexto = diaTexto,
@@ -118,7 +119,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun confirmarSesion(nombreContacto: String, targetUid: String = "") {
         viewModelScope.launch {
             chatRepository.confirmarSesionPropuesta(nombreContacto, targetUid)
-            sesionRepository.confirmarSesionPropuesta(nombreContacto)
+            sesionRepository.confirmarSesionPropuesta(nombreContacto, targetUid)
         }
     }
 }
