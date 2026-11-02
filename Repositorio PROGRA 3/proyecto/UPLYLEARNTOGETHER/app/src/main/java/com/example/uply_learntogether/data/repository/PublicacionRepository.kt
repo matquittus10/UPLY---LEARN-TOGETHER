@@ -2,56 +2,111 @@ package com.example.uply_learntogether.data.repository
 
 import com.example.uply_learntogether.data.local.dao.PublicacionDao
 import com.example.uply_learntogether.data.local.entity.PublicacionEntity
-import com.example.uply_learntogether.data.remote.client.SQLiteCloudClient
-import com.example.uply_learntogether.data.remote.dto.SqlRequest
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class PublicacionRepository(private val dao: PublicacionDao) {
 
-    private fun String.escapeSql(): String = this.replace("'", "''")
+    private val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
+    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
-    fun observarPublicaciones(): Flow<List<PublicacionEntity>> =
-        dao.obtenerPublicaciones()
+    /**
+     * Observa las publicaciones en tiempo real desde la colección "publicaciones" de Firestore.
+     * Así, todas las publicaciones creadas en la nube aparecen en la pantalla Explorar y Perfil.
+     */
+    fun observarPublicaciones(): Flow<List<PublicacionEntity>> = callbackFlow {
+        val listener = firestore.collection("publicaciones")
+            .orderBy("fechaCreacion", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if ((error != null) || (snapshot == null)) {
+                    return@addSnapshotListener
+                }
 
+                val lista = snapshot.documents.mapNotNull { doc ->
+                    val id = doc.id.hashCode().toLong()
+                    val tipo = doc.getString("tipo") ?: "Oferta de tutoría"
+                    val titulo = doc.getString("titulo") ?: ""
+                    val materia = doc.getString("materia") ?: ""
+                    val descripcion = doc.getString("descripcion") ?: ""
+                    val nombreAutor = doc.getString("nombreAutor") ?: "Estudiante UPLY"
+                    val fechaCreacion = doc.getLong("fechaCreacion") ?: System.currentTimeMillis()
+
+                    PublicacionEntity(
+                        id = id,
+                        tipo = tipo,
+                        titulo = titulo,
+                        materia = materia,
+                        descripcion = descripcion,
+                        nombreAutor = nombreAutor,
+                        fechaCreacion = fechaCreacion,
+                    )
+                }
+
+                trySend(lista)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    // Inserta la publicación en Firestore y en Room localmente
     suspend fun insertarPublicacion(
         tipo: String,
         titulo: String,
         materia: String,
         descripcion: String,
-        nombreAutor: String = "Usuario UPLY"
+        nombreAutor: String = "Usuario UPLY",
     ) {
+        val fechaActual = System.currentTimeMillis()
+
+        // 1. Guardar en Firestore para sincronización global
+        try {
+            val pubMap = hashMapOf(
+                "tipo" to tipo,
+                "titulo" to titulo,
+                "materia" to materia,
+                "descripcion" to descripcion,
+                "nombreAutor" to nombreAutor,
+                "fechaCreacion" to fechaActual,
+                "autorUid" to (auth.currentUser?.uid ?: ""),
+            )
+            firestore.collection("publicaciones").add(pubMap).await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // 2. Guardar también localmente en Room
         val entidad = PublicacionEntity(
             tipo = tipo,
             titulo = titulo,
             materia = materia,
             descripcion = descripcion,
-            nombreAutor = nombreAutor
+            nombreAutor = nombreAutor,
+            fechaCreacion = fechaActual,
         )
         dao.insertarPublicacion(entidad)
-
-        try {
-            val t = entidad.tipo.escapeSql()
-            val tit = entidad.titulo.escapeSql()
-            val mat = entidad.materia.escapeSql()
-            val desc = entidad.descripcion.escapeSql()
-            val autor = entidad.nombreAutor.escapeSql()
-            val fecha = entidad.fechaCreacion
-
-            val sql = "INSERT INTO publicaciones (tipo, titulo, materia, descripcion, nombreAutor, fechaCreacion) " +
-                    "VALUES ('$t', '$tit', '$mat', '$desc', '$autor', $fecha);"
-
-            SQLiteCloudClient.apiService.ejecutarSql("uply_learntogether_db.sqlite", SqlRequest(sql))
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
+    // Elimina la publicación tanto de Room localmente como de Firestore en la nube
     suspend fun eliminarPublicacion(entidad: PublicacionEntity) {
+        // 1. Eliminar localmente de Room
         dao.eliminarPublicacion(entidad)
 
+        // 2. Eliminar de Firestore buscando por título y fecha de creación
         try {
-            val sql = "DELETE FROM publicaciones WHERE id = ${entidad.id};"
-            SQLiteCloudClient.apiService.ejecutarSql("uply_learntogether_db.sqlite", SqlRequest(sql))
+            val querySnapshot = firestore.collection("publicaciones")
+                .whereEqualTo("titulo", entidad.titulo)
+                .whereEqualTo("fechaCreacion", entidad.fechaCreacion)
+                .get()
+                .await()
+
+            for (doc in querySnapshot.documents) {
+                doc.reference.delete().await()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
