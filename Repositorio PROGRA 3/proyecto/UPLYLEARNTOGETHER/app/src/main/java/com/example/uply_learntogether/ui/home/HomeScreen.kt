@@ -39,6 +39,7 @@ fun HomeScreen(
     onPublishClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
+    onVerTodasSesionesClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel()
 ) {
@@ -97,7 +98,12 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            HomeFeedContent(usuario = usuario, onCerrarSesion = onCerrarSesion, viewModel = viewModel)
+            HomeFeedContent(
+                usuario = usuario,
+                onCerrarSesion = onCerrarSesion,
+                onVerTodasSesionesClick = onVerTodasSesionesClick,
+                viewModel = viewModel
+            )
         }
     }
 }
@@ -106,6 +112,7 @@ fun HomeScreen(
 fun HomeFeedContent(
     usuario: Usuario,
     onCerrarSesion: () -> Unit,
+    onVerTodasSesionesClick: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
     val categories = listOf("Cálculo I", "Programación I", "Física II", "Álgebra Lineal", "Estadística", "Química General")
@@ -238,7 +245,7 @@ fun HomeFeedContent(
                         text = "Tu próxima sesión",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
-                    TextButton(onClick = { /* Ver todas */ }) {
+                    TextButton(onClick = onVerTodasSesionesClick) {
                         Text("Ver todas >", color = MaterialTheme.colorScheme.primary)
                     }
                 }

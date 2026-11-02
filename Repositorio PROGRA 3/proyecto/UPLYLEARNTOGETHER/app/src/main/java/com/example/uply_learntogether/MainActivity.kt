@@ -22,6 +22,7 @@ import com.example.uply_learntogether.ui.chat.ConversationsScreen
 import com.example.uply_learntogether.ui.chat.ScreenConfiguration
 import com.example.uply_learntogether.ui.explore.ExploreScreen
 import com.example.uply_learntogether.ui.home.HomeScreen
+import com.example.uply_learntogether.ui.home.MisSesionesScreen
 import com.example.uply_learntogether.ui.login.LoginScreen
 import com.example.uply_learntogether.ui.login.LoginViewModel
 import com.example.uply_learntogether.ui.profile.MisPublicacionesScreen
@@ -52,6 +53,7 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
     val usuarioActual by loginViewModel.usuarioActual.collectAsState()
     var currentScreen by remember { mutableStateOf("home") }
     var selectedContactName by remember { mutableStateOf("Valeria Rojas") }
+    var selectedContactUid by remember { mutableStateOf("") }
 
     val proposedSessionsMap = remember { mutableStateMapOf<String, Boolean>() }
     val proposedSessionsTextMap = remember { mutableStateMapOf<String, String>() }
@@ -72,7 +74,17 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },
                 onChatClick = { currentScreen = "conversations" },
-                onProfileClick = { currentScreen = "profile" }
+                onProfileClick = { currentScreen = "profile" },
+                onVerTodasSesionesClick = { currentScreen = "mis_sesiones" }
+            )
+            "mis_sesiones" -> MisSesionesScreen(
+                usuario = usuario,
+                onHomeClick = { currentScreen = "home" },
+                onExploreClick = { currentScreen = "explore" },
+                onPublishClick = { currentScreen = "publish" },
+                onChatClick = { currentScreen = "conversations" },
+                onProfileClick = { currentScreen = "profile" },
+                onBackClick = { currentScreen = "home" }
             )
             "explore" -> ExploreScreen(
                 onHomeClick = { currentScreen = "home" },
@@ -95,13 +107,15 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
                 onPublishClick = { currentScreen = "publish" },
                 onBackClick = { currentScreen = "home" },
                 onProfileClick = { currentScreen = "profile" },
-                onConversationClick = { contact ->
+                onConversationClick = { contact, uid ->
                     selectedContactName = contact
+                    selectedContactUid = uid
                     currentScreen = "chat_detail"
                 }
             )
             "chat_detail" -> ChatScreen(
                 contactName = selectedContactName,
+                targetUid = selectedContactUid,
                 hasProposedSession = proposedSessionsMap[selectedContactName] == true,
                 proposedSessionSummary = proposedSessionsTextMap[selectedContactName] ?: "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
                 onHomeClick = { currentScreen = "home" },
@@ -113,6 +127,7 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
             )
             "configure_session" -> ScreenConfiguration(
                 contactName = selectedContactName,
+                targetUid = selectedContactUid,
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },

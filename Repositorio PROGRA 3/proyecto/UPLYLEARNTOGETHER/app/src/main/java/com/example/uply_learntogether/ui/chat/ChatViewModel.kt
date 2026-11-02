@@ -3,6 +3,7 @@ package com.example.uply_learntogether.ui.chat
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uply_learntogether.Models.Usuario
 import com.example.uply_learntogether.data.local.AppDatabase
 import com.example.uply_learntogether.data.local.entity.MensajeEntity
 import com.example.uply_learntogether.data.local.entity.SesionEntity
@@ -19,7 +20,8 @@ data class ConversacionUiState(
     val name: String,
     val lastMessage: String,
     val time: String,
-    val unreadCount: Int = 0
+    val unreadCount: Int = 0,
+    val targetUid: String = ""
 )
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
@@ -27,6 +29,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.obtener(application)
     private val chatRepository = ChatRepository(db.mensajeDao())
     private val sesionRepository = SesionRepository(db.sesionDao())
+
+    val usuariosRegistradosState: StateFlow<List<Usuario>> = chatRepository.observarUsuariosRegistrados()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     val conversacionesState: StateFlow<List<ConversacionUiState>> = chatRepository.observarTodasLasConversaciones()
         .map { mensajes ->
@@ -55,8 +64,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun obtenerMensajesPorContacto(nombreContacto: String): StateFlow<List<MensajeEntity>> {
-        return chatRepository.observarMensajesPorContacto(nombreContacto)
+    fun obtenerMensajesPorContacto(nombreContacto: String, targetUid: String = ""): StateFlow<List<MensajeEntity>> {
+        return chatRepository.observarMensajesPorContacto(nombreContacto, targetUid)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -64,8 +73,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             )
     }
 
-    fun obtenerSesionPropuesta(nombreContacto: String): StateFlow<SesionEntity?> {
-        return sesionRepository.observarSesionPropuesta(nombreContacto)
+    fun obtenerSesionPropuesta(nombreContacto: String, targetUid: String = ""): StateFlow<SesionEntity?> {
+        return chatRepository.observarSesionPropuesta(nombreContacto, targetUid)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -73,24 +82,26 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             )
     }
 
-    fun enviarMensaje(nombreContacto: String, contenido: String) {
+    fun enviarMensaje(nombreContacto: String, contenido: String, targetUid: String = "") {
         if (contenido.isBlank()) return
         viewModelScope.launch {
-            chatRepository.enviarMensaje(nombreContacto, contenido, esRemitenteUsuario = true)
+            chatRepository.enviarMensaje(nombreContacto, contenido, targetUid = targetUid, esRemitenteUsuario = true)
         }
     }
 
     fun proponerSesion(
         nombreContacto: String,
-        materia: String,
-        mesTexto: String,
-        diaTexto: String,
-        horarioTexto: String,
-        modalidad: String,
-        precioTexto: String,
-        resumenCompleto: String
+        targetUid: String = "",
+        materia: String = "",
+        mesTexto: String = "",
+        diaTexto: String = "",
+        horarioTexto: String = "",
+        modalidad: String = "",
+        precioTexto: String = "",
+        resumenCompleto: String = ""
     ) {
         viewModelScope.launch {
+            chatRepository.proponerSesion(nombreContacto, targetUid, resumenCompleto)
             sesionRepository.proponerSesion(
                 nombreContacto = nombreContacto,
                 materia = materia,
@@ -104,8 +115,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun confirmarSesion(nombreContacto: String) {
+    fun confirmarSesion(nombreContacto: String, targetUid: String = "") {
         viewModelScope.launch {
+            chatRepository.confirmarSesionPropuesta(nombreContacto, targetUid)
             sesionRepository.confirmarSesionPropuesta(nombreContacto)
         }
     }

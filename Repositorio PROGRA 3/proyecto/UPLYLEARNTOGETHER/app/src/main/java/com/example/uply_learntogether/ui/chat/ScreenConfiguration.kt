@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun ScreenConfiguration(
     contactName: String = "Valeria Rojas",
+    targetUid: String = "",
     onHomeClick: () -> Unit = {},
     onExploreClick: () -> Unit = {},
     onPublishClick: () -> Unit = {},
@@ -412,6 +413,7 @@ fun ScreenConfiguration(
                     onClick = {
                         viewModel.proponerSesion(
                             nombreContacto = contactName,
+                            targetUid = targetUid,
                             materia = "Tutoría con $contactName",
                             mesTexto = "OCT",
                             diaTexto = "05",

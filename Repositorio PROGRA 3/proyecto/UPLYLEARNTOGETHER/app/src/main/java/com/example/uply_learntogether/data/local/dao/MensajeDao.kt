@@ -16,6 +16,9 @@ interface MensajeDao {
     @Query("SELECT * FROM mensajes ORDER BY fechaTimestamp DESC")
     fun obtenerTodosLosMensajes(): Flow<List<MensajeEntity>>
 
+    @Query("DELETE FROM mensajes WHERE nombreContacto = :nombreContacto")
+    suspend fun borrarMensajesPorContacto(nombreContacto: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarMensaje(mensaje: MensajeEntity)
 

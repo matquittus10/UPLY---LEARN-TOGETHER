@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun ChatScreen(
     contactName: String = "Valeria Rojas",
+    targetUid: String = "",
     hasProposedSession: Boolean = false,
     proposedSessionSummary: String = "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
     onHomeClick: () -> Unit = {},
@@ -43,8 +44,8 @@ fun ChatScreen(
     var messageText by remember { mutableStateOf("") }
     var isAttachMenuExpanded by remember { mutableStateOf(false) }
 
-    val mensajes by viewModel.obtenerMensajesPorContacto(contactName).collectAsState()
-    val sesionPropuesta by viewModel.obtenerSesionPropuesta(contactName).collectAsState()
+    val mensajes by viewModel.obtenerMensajesPorContacto(contactName, targetUid).collectAsState()
+    val sesionPropuesta by viewModel.obtenerSesionPropuesta(contactName, targetUid).collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -236,12 +237,14 @@ fun ChatScreen(
                 // Proposed Session Card ("Sesión propuesta")
                 val mostrarSesion = sesionPropuesta != null || hasProposedSession
                 val resumenSesion = sesionPropuesta?.resumenCompleto ?: proposedSessionSummary
+                val esConfirmada = sesionPropuesta?.estado == "CONFIRMADA"
 
                 if (mostrarSesion) {
                     item {
                         ProposedSessionCard(
                             sessionDetails = resumenSesion,
-                            onConfirmClick = { viewModel.confirmarSesion(contactName) }
+                            isConfirmed = esConfirmada,
+                            onConfirmClick = { viewModel.confirmarSesion(contactName, targetUid) }
                         )
                     }
                 }
@@ -320,7 +323,7 @@ fun ChatScreen(
                             .size(40.dp)
                             .clickable {
                                 if (messageText.isNotBlank()) {
-                                    viewModel.enviarMensaje(contactName, messageText)
+                                    viewModel.enviarMensaje(contactName, messageText, targetUid)
                                     messageText = ""
                                 }
                             }
@@ -424,12 +427,13 @@ fun SentMessageBubble(text: String, time: String) {
 @Composable
 fun ProposedSessionCard(
     sessionDetails: String = "Lunes 5 oct. · 16:00 · Virtual · Bs 35",
+    isConfirmed: Boolean = false,
     onConfirmClick: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = Color(0xFFEFF2FE)
+        color = if (isConfirmed) Color(0xFFE8F5E9) else Color(0xFFEFF2FE)
     ) {
         Column(
             modifier = Modifier
@@ -441,15 +445,15 @@ fun ProposedSessionCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.DateRange,
+                    imageVector = if (isConfirmed) Icons.Default.CheckCircle else Icons.Default.DateRange,
                     contentDescription = "Calendario",
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = if (isConfirmed) Color(0xFF2E7D32) else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Text(
-                    text = "Sesión propuesta",
+                    text = if (isConfirmed) "Sesión Confirmada ✓" else "Sesión propuesta",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary
+                    color = if (isConfirmed) Color(0xFF2E7D32) else MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -458,23 +462,26 @@ fun ProposedSessionCard(
             Text(
                 text = sessionDetails,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = if (isConfirmed) Color(0xFF1B5E20) else MaterialTheme.colorScheme.primary
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = onConfirmClick,
+                enabled = !isConfirmed,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = if (isConfirmed) Color(0xFF2E7D32) else MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = Color(0xFF81C784),
+                    disabledContentColor = Color.White
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
                 Text(
-                    text = "Confirmar sesión",
+                    text = if (isConfirmed) "Sesión Confirmada" else "Confirmar sesión",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onPrimary
                 )

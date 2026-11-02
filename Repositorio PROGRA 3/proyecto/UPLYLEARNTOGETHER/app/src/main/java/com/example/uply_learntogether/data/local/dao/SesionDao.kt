@@ -16,6 +16,9 @@ interface SesionDao {
     @Query("SELECT * FROM sesiones WHERE estado = 'CONFIRMADA' ORDER BY id DESC LIMIT 1")
     fun observarProximaSesionConfirmada(): Flow<SesionEntity?>
 
+    @Query("SELECT * FROM sesiones ORDER BY id DESC")
+    fun observarTodasLasSesiones(): Flow<List<SesionEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarSesion(sesion: SesionEntity): Long
 

@@ -12,6 +12,9 @@ class SesionRepository(private val sesionDao: SesionDao) {
     fun observarProximaSesionConfirmada(): Flow<SesionEntity?> =
         sesionDao.observarProximaSesionConfirmada()
 
+    fun observarTodasLasSesiones(): Flow<List<SesionEntity>> =
+        sesionDao.observarTodasLasSesiones()
+
     suspend fun proponerSesion(
         nombreContacto: String,
         materia: String,
