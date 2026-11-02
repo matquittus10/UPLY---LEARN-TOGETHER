@@ -18,6 +18,7 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
 
 data class ConversacionResumen(
     val nombreContacto: String,
@@ -72,53 +73,75 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
         awaitClose { listener.remove() }
     }
 
-    fun observarMensajesPorContacto(nombreContacto: String, targetUid: String = ""): Flow<List<MensajeEntity>> {
+    fun observarMensajesPorContacto(nombreContacto: String, targetUid: String = ""): Flow<List<MensajeEntity>> = callbackFlow {
         val chatId = getChatId(nombreContacto, targetUid)
         val currentUserId = auth.currentUser?.uid ?: ""
 
-        try {
-            firestore.collection("chats")
-                .document(chatId)
-                .collection("mensajes")
-                .orderBy("fechaTimestamp", Query.Direction.ASCENDING)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null || snapshot == null) return@addSnapshotListener
+        val listener = firestore.collection("chats")
+            .document(chatId)
+            .collection("mensajes")
+            .orderBy("fechaTimestamp", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
 
-                    val nuevosMensajes = snapshot.documents.mapNotNull { doc ->
-                        val contenido = doc.getString("contenido") ?: return@mapNotNull null
-                        val fechaHora = doc.getString("fechaHoraTexto") ?: ""
-                        val timestamp = doc.getLong("fechaTimestamp") ?: System.currentTimeMillis()
-                        val remitenteUid = doc.getString("remitenteUid") ?: ""
+                val mensajes = snapshot.documents.mapNotNull { doc ->
+                    val contenido = doc.getString("contenido") ?: return@mapNotNull null
+                    val fechaHora = doc.getString("fechaHoraTexto") ?: ""
+                    val timestamp = doc.getLong("fechaTimestamp") ?: System.currentTimeMillis()
+                    val remitenteUid = doc.getString("remitenteUid") ?: ""
 
-                        MensajeEntity(
-                            nombreContacto = nombreContacto,
-                            contenido = contenido,
-                            fechaHoraTexto = fechaHora,
-                            fechaTimestamp = timestamp,
-                            esRemitenteUsuario = (remitenteUid == currentUserId)
-                        )
-                    }
-
-                    if (nuevosMensajes.isNotEmpty()) {
-                        repositoryScope.launch {
-                            try {
-                                mensajeDao.borrarMensajesPorContacto(nombreContacto)
-                                mensajeDao.insertarMensajes(nuevosMensajes)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }
+                    MensajeEntity(
+                        id = abs(doc.id.hashCode()).toLong(),
+                        nombreContacto = nombreContacto,
+                        contenido = contenido,
+                        fechaHoraTexto = fechaHora,
+                        fechaTimestamp = timestamp,
+                        esRemitenteUsuario = (remitenteUid == currentUserId)
+                    )
                 }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+                trySend(mensajes)
+            }
 
-        return mensajeDao.obtenerMensajesPorContacto(nombreContacto)
+        awaitClose { listener.remove() }
     }
 
-    fun observarTodasLasConversaciones(): Flow<List<MensajeEntity>> =
-        mensajeDao.obtenerTodosLosMensajes()
+    fun observarTodasLasConversaciones(): Flow<List<MensajeEntity>> = callbackFlow {
+        val currentUserId = auth.currentUser?.uid ?: ""
+        val currentUserName = auth.currentUser?.displayName
+            ?: auth.currentUser?.email?.substringBefore("@") ?: ""
+
+        val listener = firestore.collection("chats")
+            .orderBy("fechaTimestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+
+                val conversaciones = snapshot.documents.mapNotNull { doc ->
+                    val participantes = doc.get("participantes") as? List<*> ?: emptyList<Any>()
+                    val esParticipante = participantes.isEmpty() ||
+                            participantes.contains(currentUserId) ||
+                            participantes.contains(currentUserName)
+
+                    if (!esParticipante) return@mapNotNull null
+
+                    val ultimoMensaje = doc.getString("ultimoMensaje") ?: return@mapNotNull null
+                    val nombreContacto = doc.getString("nombreContacto") ?: "Contacto"
+                    val fechaHora = doc.getString("fechaHoraTexto") ?: ""
+                    val timestamp = doc.getLong("fechaTimestamp") ?: System.currentTimeMillis()
+
+                    MensajeEntity(
+                        id = abs(doc.id.hashCode()).toLong(),
+                        nombreContacto = nombreContacto,
+                        contenido = ultimoMensaje,
+                        fechaHoraTexto = fechaHora,
+                        fechaTimestamp = timestamp,
+                        esRemitenteUsuario = false
+                    )
+                }
+                trySend(conversaciones)
+            }
+
+        awaitClose { listener.remove() }
+    }
 
     suspend fun enviarMensaje(
         nombreContacto: String,
