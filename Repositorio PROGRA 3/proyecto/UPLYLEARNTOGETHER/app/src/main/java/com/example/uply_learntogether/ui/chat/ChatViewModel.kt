@@ -73,8 +73,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             )
     }
 
-    fun obtenerSesionPropuesta(nombreContacto: String): StateFlow<SesionEntity?> {
-        return sesionRepository.observarSesionPropuesta(nombreContacto)
+    fun obtenerSesionPropuesta(nombreContacto: String, targetUid: String = ""): StateFlow<SesionEntity?> {
+        return chatRepository.observarSesionPropuesta(nombreContacto, targetUid)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -91,15 +91,17 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     fun proponerSesion(
         nombreContacto: String,
-        materia: String,
-        mesTexto: String,
-        diaTexto: String,
-        horarioTexto: String,
-        modalidad: String,
-        precioTexto: String,
-        resumenCompleto: String
+        targetUid: String = "",
+        materia: String = "",
+        mesTexto: String = "",
+        diaTexto: String = "",
+        horarioTexto: String = "",
+        modalidad: String = "",
+        precioTexto: String = "",
+        resumenCompleto: String = ""
     ) {
         viewModelScope.launch {
+            chatRepository.proponerSesion(nombreContacto, targetUid, resumenCompleto)
             sesionRepository.proponerSesion(
                 nombreContacto = nombreContacto,
                 materia = materia,
@@ -113,8 +115,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun confirmarSesion(nombreContacto: String) {
+    fun confirmarSesion(nombreContacto: String, targetUid: String = "") {
         viewModelScope.launch {
+            chatRepository.confirmarSesionPropuesta(nombreContacto, targetUid)
             sesionRepository.confirmarSesionPropuesta(nombreContacto)
         }
     }

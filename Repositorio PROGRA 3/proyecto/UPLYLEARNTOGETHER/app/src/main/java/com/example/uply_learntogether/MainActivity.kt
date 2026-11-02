@@ -116,6 +116,7 @@ fun UplyApp(loginViewModel: LoginViewModel = viewModel()) {
             )
             "configure_session" -> ScreenConfiguration(
                 contactName = selectedContactName,
+                targetUid = selectedContactUid,
                 onHomeClick = { currentScreen = "home" },
                 onExploreClick = { currentScreen = "explore" },
                 onPublishClick = { currentScreen = "publish" },

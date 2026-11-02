@@ -3,17 +3,14 @@ package com.example.uply_learntogether.data.repository
 import com.example.uply_learntogether.Models.Usuario
 import com.example.uply_learntogether.data.local.dao.MensajeDao
 import com.example.uply_learntogether.data.local.entity.MensajeEntity
+import com.example.uply_learntogether.data.local.entity.SesionEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -31,7 +28,6 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
 
     private val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
-    private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private fun getChatId(nombreContacto: String, targetUid: String = ""): String {
         val currentUid = auth.currentUser?.uid ?: ""
@@ -123,14 +119,30 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
 
                     if (!esParticipante) return@mapNotNull null
 
+                    val nombresMap = doc.get("nombresParticipantes") as? Map<*, *> ?: emptyMap<Any, Any>()
+                    val otroNombre = nombresMap.entries.firstOrNull {
+                        it.key != currentUserId && it.key != currentUserName
+                    }?.value as? String
+
+                    val nombreContactoMostrar: String = when {
+                        !otroNombre.isNullOrBlank() && !otroNombre.equals(currentUserName, ignoreCase = true) -> otroNombre
+                        else -> {
+                            val alt = doc.getString("nombreContacto") ?: "Contacto"
+                            if (alt.equals(currentUserName, ignoreCase = true)) return@mapNotNull null else alt
+                        }
+                    }
+
+                    if (nombreContactoMostrar.equals(currentUserName, ignoreCase = true)) {
+                        return@mapNotNull null
+                    }
+
                     val ultimoMensaje = doc.getString("ultimoMensaje") ?: return@mapNotNull null
-                    val nombreContacto = doc.getString("nombreContacto") ?: "Contacto"
                     val fechaHora = doc.getString("fechaHoraTexto") ?: ""
                     val timestamp = doc.getLong("fechaTimestamp") ?: System.currentTimeMillis()
 
                     MensajeEntity(
                         id = abs(doc.id.hashCode()).toLong(),
-                        nombreContacto = nombreContacto,
+                        nombreContacto = nombreContactoMostrar,
                         contenido = ultimoMensaje,
                         fechaHoraTexto = fechaHora,
                         fechaTimestamp = timestamp,
@@ -141,6 +153,80 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
             }
 
         awaitClose { listener.remove() }
+    }
+
+    fun observarSesionPropuesta(nombreContacto: String, targetUid: String = ""): Flow<SesionEntity?> = callbackFlow {
+        val chatId = getChatId(nombreContacto, targetUid)
+
+        val listener = firestore.collection("chats")
+            .document(chatId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null || !snapshot.exists()) {
+                    trySend(null)
+                    return@addSnapshotListener
+                }
+
+                val sesionMap = snapshot.get("sesionPropuesta") as? Map<*, *>
+                if (sesionMap == null) {
+                    trySend(null)
+                    return@addSnapshotListener
+                }
+
+                val resumen = sesionMap["resumenCompleto"] as? String ?: ""
+                val estado = sesionMap["estado"] as? String ?: "PROPUESTA"
+
+                if (resumen.isNotBlank()) {
+                    val sesion = SesionEntity(
+                        nombreContacto = nombreContacto,
+                        materia = "Tutoría",
+                        mesTexto = "",
+                        diaTexto = "",
+                        horarioTexto = "",
+                        modalidad = "",
+                        precioTexto = "",
+                        resumenCompleto = resumen,
+                        estado = estado
+                    )
+                    trySend(sesion)
+                } else {
+                    trySend(null)
+                }
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun proponerSesion(nombreContacto: String, targetUid: String = "", resumenCompleto: String) {
+        val chatId = getChatId(nombreContacto, targetUid)
+        val currentUserId = auth.currentUser?.uid ?: ""
+
+        val sesionData = hashMapOf(
+            "resumenCompleto" to resumenCompleto,
+            "estado" to "PROPUESTA",
+            "propuestaPorUid" to currentUserId,
+            "nombreContacto" to nombreContacto
+        )
+
+        try {
+            firestore.collection("chats").document(chatId).set(
+                hashMapOf("sesionPropuesta" to sesionData),
+                SetOptions.merge()
+            ).await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun confirmarSesionPropuesta(nombreContacto: String, targetUid: String = "") {
+        val chatId = getChatId(nombreContacto, targetUid)
+
+        try {
+            firestore.collection("chats").document(chatId).update(
+                "sesionPropuesta.estado", "CONFIRMADA"
+            ).await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     suspend fun enviarMensaje(
@@ -171,12 +257,17 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
             val chatRef = firestore.collection("chats").document(chatId)
             chatRef.collection("mensajes").add(mensajeData).await()
 
+            val nombresMap = hashMapOf(
+                currentUserId to currentUserName,
+                (targetUid.ifBlank { nombreContacto }) to nombreContacto
+            )
+
             val chatSummary = hashMapOf(
-                "nombreContacto" to nombreContacto,
                 "ultimoMensaje" to contenido,
                 "fechaHoraTexto" to horaActual,
                 "fechaTimestamp" to timestamp,
-                "participantes" to listOf(currentUserId, targetUid.ifBlank { nombreContacto })
+                "participantes" to listOf(currentUserId, targetUid.ifBlank { nombreContacto }),
+                "nombresParticipantes" to nombresMap
             )
             chatRef.set(chatSummary, SetOptions.merge()).await()
         } catch (e: Exception) {
@@ -243,4 +334,3 @@ class ChatRepository(private val mensajeDao: MensajeDao) {
         }
     }
 }
-
