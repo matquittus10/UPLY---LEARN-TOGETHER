@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -104,6 +106,22 @@ object AuthRepository {
                     correoInstitucional = firebaseUser.email ?: correoLimpio
                 )
                 usuario.iniciarSesionCuenta()
+
+                // Guardar usuario en Firestore para que sea descubrible por otros usuarios
+                try {
+                    val userData = hashMapOf(
+                        "uid" to firebaseUser.uid,
+                        "nombreUsuario" to nombreLimpio,
+                        "correo" to correoLimpio
+                    )
+                    FirebaseFirestore.getInstance()
+                        .collection("usuarios")
+                        .document(firebaseUser.uid)
+                        .set(userData, SetOptions.merge())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
                 Result.success(usuario)
             } else {
                 Result.failure(Exception("No se pudo registrar el usuario en Firebase."))

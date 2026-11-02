@@ -45,6 +45,8 @@ fun ConversationsScreen(
     viewModel: ChatViewModel = viewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    var showNewChatDialog by remember { mutableStateOf(false) }
+    var newChatContactName by remember { mutableStateOf("") }
     val conversacionesState by viewModel.conversacionesState.collectAsState()
 
     val conversationsList = remember(conversacionesState, searchQuery) {
@@ -140,7 +142,7 @@ fun ConversationsScreen(
                     )
                 }
 
-                IconButton(onClick = { }) {
+                IconButton(onClick = { showNewChatDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Nueva conversación",
@@ -249,6 +251,45 @@ fun ConversationsScreen(
                     )
                 }
             }
+        }
+
+        if (showNewChatDialog) {
+            AlertDialog(
+                onDismissRequest = { showNewChatDialog = false },
+                title = { Text(text = "Iniciar Nueva Conversación") },
+                text = {
+                    Column {
+                        Text(text = "Ingresa el nombre o correo de la persona registrada con quien deseas chatear:")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        OutlinedTextField(
+                            value = newChatContactName,
+                            onValueChange = { newChatContactName = it },
+                            label = { Text("Nombre o Correo del usuario") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val contact = newChatContactName.trim()
+                            if (contact.isNotEmpty()) {
+                                showNewChatDialog = false
+                                newChatContactName = ""
+                                onConversationClick(contact)
+                            }
+                        }
+                    ) {
+                        Text("Iniciar Chat")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showNewChatDialog = false }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
         }
     }
 }
