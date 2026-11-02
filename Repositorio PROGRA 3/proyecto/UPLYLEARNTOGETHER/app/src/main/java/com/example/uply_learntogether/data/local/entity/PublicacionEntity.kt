@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class PublicacionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val autorUid: String = "",
     val tipo: String,
     val titulo: String,
     val materia: String,

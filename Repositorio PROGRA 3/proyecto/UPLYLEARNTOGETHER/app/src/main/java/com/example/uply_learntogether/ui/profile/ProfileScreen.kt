@@ -20,10 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uply_learntogether.Models.Usuario
+import com.example.uply_learntogether.data.local.AppDatabase
+import com.example.uply_learntogether.data.repository.AuthRepository
+import com.example.uply_learntogether.data.repository.PublicacionRepository
 import com.example.uply_learntogether.ui.theme.UPLYLEARNTOGETHERTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,8 +41,24 @@ fun ProfileScreen(
     onBackClick: () -> Unit = {},
     onCerrarSesion: () -> Unit = {},
     onTutoresGuardadosClick: () -> Unit = {},
-    onMisPublicacionesClick: () -> Unit = {}
+    onMisPublicacionesClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val repository = remember {
+        PublicacionRepository(AppDatabase.obtener(context).publicacionDao())
+    }
+    val publicaciones by repository.observarPublicaciones().collectAsState(initial = emptyList())
+
+    val currentUid = usuario?.getIdUsuario() ?: AuthRepository.getCurrentUser()?.getIdUsuario() ?: ""
+    val nombreUsuarioActual = usuario?.getNombreUsuario()?.takeIf { it.isNotBlank() }
+        ?: AuthRepository.getCurrentUser()?.getNombreUsuario()
+        ?: "Estudiante UPLY"
+
+    val misPublicacionesCount = publicaciones.count {
+        ((it.autorUid.isNotBlank() && currentUid.isNotBlank()) && (it.autorUid == currentUid)) ||
+            it.nombreAutor.equals(nombreUsuarioActual, ignoreCase = true)
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -191,7 +211,7 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     StatItem(number = "8", label = "Sesiones")
-                    StatItem(number = "3", label = "Publicaciones")
+                    StatItem(number = misPublicacionesCount.toString(), label = "Publicaciones")
                     StatItem(number = "4.8", label = "Calificación")
                 }
             }
@@ -310,7 +330,7 @@ fun ProfileMenuItem(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha =.5f),
             modifier = Modifier.size(20.dp)
         )
     }
