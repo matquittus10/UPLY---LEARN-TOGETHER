@@ -38,6 +38,9 @@ class SesionRepository(private val sesionDao: SesionDao) {
 
     fun observarProximaSesionConfirmada(): Flow<SesionEntity?> = callbackFlow {
         val currentUserId = auth.currentUser?.uid ?: ""
+        val currentUserName = auth.currentUser?.displayName 
+            ?: auth.currentUser?.email?.substringBefore("@") ?: ""
+
         val listener = firestore.collection("sesiones")
             .whereEqualTo("estado", "CONFIRMADA")
             .addSnapshotListener { snapshot, error ->
@@ -47,13 +50,15 @@ class SesionRepository(private val sesionDao: SesionDao) {
                 }
 
                 val sesion = snapshot.documents.mapNotNull { doc ->
-                    val participantes = doc.get("participantes") as? List<*>
+                    val participantes = doc.get("participantes") as? List<*> ?: emptyList<Any>()
                     val usuarioUid = doc.getString("usuarioUid") ?: ""
+                    val nombreContactoDoc = doc.getString("nombreContacto") ?: ""
 
                     val esParticipante = currentUserId.isBlank() ||
                             usuarioUid == currentUserId ||
-                            participantes?.contains(currentUserId) == true ||
-                            participantes.isNullOrEmpty()
+                            participantes.contains(currentUserId) ||
+                            participantes.contains(currentUserName) ||
+                            participantes.contains(nombreContactoDoc)
 
                     if (!esParticipante) return@mapNotNull null
 
@@ -78,7 +83,7 @@ class SesionRepository(private val sesionDao: SesionDao) {
                         resumenCompleto = resumen,
                         estado = "CONFIRMADA"
                     )
-                }.firstOrNull()
+                }.maxByOrNull { it.id }
 
                 trySend(sesion)
             }
@@ -87,6 +92,9 @@ class SesionRepository(private val sesionDao: SesionDao) {
 
     fun observarTodasLasSesiones(): Flow<List<SesionEntity>> = callbackFlow {
         val currentUserId = auth.currentUser?.uid ?: ""
+        val currentUserName = auth.currentUser?.displayName 
+            ?: auth.currentUser?.email?.substringBefore("@") ?: ""
+
         val listener = firestore.collection("sesiones")
             .addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null) {
@@ -94,13 +102,15 @@ class SesionRepository(private val sesionDao: SesionDao) {
                 }
 
                 val sesiones = snapshot.documents.mapNotNull { doc ->
-                    val participantes = doc.get("participantes") as? List<*>
+                    val participantes = doc.get("participantes") as? List<*> ?: emptyList<Any>()
                     val usuarioUid = doc.getString("usuarioUid") ?: ""
+                    val nombreContactoDoc = doc.getString("nombreContacto") ?: ""
 
                     val esParticipante = currentUserId.isBlank() ||
                             usuarioUid == currentUserId ||
-                            participantes?.contains(currentUserId) == true ||
-                            participantes.isNullOrEmpty()
+                            participantes.contains(currentUserId) ||
+                            participantes.contains(currentUserName) ||
+                            participantes.contains(nombreContactoDoc)
 
                     if (!esParticipante) return@mapNotNull null
 
@@ -144,8 +154,18 @@ class SesionRepository(private val sesionDao: SesionDao) {
         resumenCompleto: String
     ) {
         val currentUserId = auth.currentUser?.uid ?: ""
+        val currentUserName = auth.currentUser?.displayName 
+            ?: auth.currentUser?.email?.substringBefore("@") ?: ""
+
         val chatId = getChatId(nombreContacto, targetUid)
-        val participantes = listOfNotNull(currentUserId, targetUid.takeIf { it.isNotBlank() }).distinct()
+        val participantes = listOfNotNull(
+            currentUserId,
+            targetUid.takeIf { it.isNotBlank() },
+            currentUserName,
+            nombreContacto
+        ).distinct()
+
+        val sesionRef = firestore.collection("sesiones").document()
 
         val sesionData = hashMapOf(
             "chatId" to chatId,
@@ -164,10 +184,7 @@ class SesionRepository(private val sesionDao: SesionDao) {
         )
 
         try {
-            firestore.collection("sesiones")
-                .document(chatId)
-                .set(sesionData, SetOptions.merge())
-                .await()
+            sesionRef.set(sesionData, SetOptions.merge()).await()
         } catch (e: Exception) {
             e.printStackTrace()
             val sesion = SesionEntity(
@@ -188,10 +205,15 @@ class SesionRepository(private val sesionDao: SesionDao) {
     suspend fun confirmarSesionPropuesta(nombreContacto: String, targetUid: String = "") {
         val chatId = getChatId(nombreContacto, targetUid)
         try {
-            firestore.collection("sesiones")
-                .document(chatId)
-                .update("estado", "CONFIRMADA")
+            val querySnapshot = firestore.collection("sesiones")
+                .whereEqualTo("chatId", chatId)
+                .whereEqualTo("estado", "PROPUESTA")
+                .get()
                 .await()
+
+            for (doc in querySnapshot.documents) {
+                doc.reference.update("estado", "CONFIRMADA").await()
+            }
             sesionDao.confirmarSesionPropuesta(nombreContacto)
         } catch (e: Exception) {
             e.printStackTrace()
