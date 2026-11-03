@@ -367,18 +367,32 @@ fun HomeFeedContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
-                    uiState.publicacionesRecientes.forEach { pub ->
-                        PublicationCard(
-                            tag = pub.tipo,
-                            timeAgo = "Reciente",
-                            title = pub.titulo,
-                            subtitle = pub.materia,
-                            description = pub.descripcion,
-                            tutorName = usuario.getNombreUsuario(),
-                            tutorDetails = usuario.getCorreoInstitucional(),
-                            price = "A convenir"
+                    val nombreUsuarioActual = usuario.getNombreUsuario()
+                    val misPublicaciones = uiState.publicacionesRecientes.filter { pub ->
+                        ((pub.autorUid.isNotBlank() && usuario.getIdUsuario().isNotBlank()) && (pub.autorUid == usuario.getIdUsuario())) ||
+                            pub.nombreAutor.equals(nombreUsuarioActual, ignoreCase = true)
+                    }
+
+                    if (misPublicaciones.isEmpty()) {
+                        Text(
+                            text = "Aún no has realizado ninguna publicación.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                    } else {
+                        misPublicaciones.forEach { pub ->
+                            PublicationCard(
+                                tag = pub.tipo,
+                                timeAgo = "Reciente",
+                                title = pub.titulo,
+                                subtitle = pub.materia,
+                                description = pub.descripcion,
+                                tutorName = pub.nombreAutor.ifBlank { nombreUsuarioActual },
+                                tutorDetails = usuario.getCorreoInstitucional(),
+                                price = "A convenir"
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
             }
